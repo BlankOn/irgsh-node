@@ -164,6 +164,11 @@ class IrgshNode:
 
         self.log.close()
         self.log = None
-        self.x.assignment_wait_for_upload(self.assignment, result)
+
+        info = self.x.get_task_info(self.id)
+        if info['state'] == "F":
+            self.x.assignment_cancel(self.assignment, "Cancelling successful build because the task as a whole is failed")
+        else:
+            self.x.assignment_wait_for_upload(self.assignment, result)
 
 t = IrgshNode()
