@@ -18,6 +18,20 @@ from debian_bundle.changelog import Changelog
 import bz2
 from threading import Timer
 
+class SSLTransport(xmlrpclib.SafeTransport):
+    
+    def __init__(self, cert, key):
+        self.cert = cert
+        self.key  = key
+        self._use_datetime = True 
+
+    def make_connection(self, host):
+        host_cert = (host, {
+            'cert_file' :  self.cert,
+            'key_file'  :  self.key,
+        } )
+        return  xmlrpclib.SafeTransport.make_connection(self, host_cert)
+
 class IrgshNode:
     assignment = -1
     _uploading = False
@@ -44,8 +58,27 @@ class IrgshNode:
         except ConfigParser.NoOptionError:
             print "No 'build-path' option in configuration file(s):"
             sys.exit(-1)
+
+        cert = None
+        key = None
         try:
-            self.x = xmlrpclib.ServerProxy(server)
+            cert = config.get('irgsh', 'cert')
+        except ConfigParser.NoOptionError:
+            pass
+
+        if cert != None:
+            try:
+                key = config.get('irgsh', 'cert-key')
+            except ConfigParser.NoOptionError:
+                print "No 'cert-key' option in configuration file(s):"
+                sys.exit(-1)
+
+            transport = SSLTransport(cert, key)
+        else:
+            transport = None
+
+        try:
+            self.x = xmlrpclib.ServerProxy(server, transport = transport)
         except Exception as e:
             print "Unable to contact %s: %s" % (server, str(e))
             sys.exit(-1)
