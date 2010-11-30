@@ -128,6 +128,7 @@ class IrgshNode:
     def run(self):
         print "Running"
         try:
+            self.x.builder_ping(self.node_name)
             (code, reply) = self.x.get_assignment_for_builder(self.node_name)
             if code == -1:
                 raise Exception(reply)
