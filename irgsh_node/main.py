@@ -100,7 +100,7 @@ class IrgshNode(object):
         self.connect()
 
         while True:
-            Timer(1, self.upload())
+            Timer(1, self.upload)
             self.run()
             time.sleep(10)
 
