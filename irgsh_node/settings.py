@@ -7,6 +7,8 @@ BROKER_PORT = 5672
 BROKER_USER = "irgsh"
 BROKER_PASSWORD = "irgsh"
 BROKER_VHOST = "irgsh"
+BROKER_SSL_KEY = 'etc/ssl.key'
+BROKER_SSL_CERT = 'etc/ssl.cert'
 
 CELERY_RESULT_BACKEND = "database"
 CELERY_RESULT_DBURI = "sqlite:///celerydb.sqlite"
@@ -17,6 +19,26 @@ ARCHITECTURE = 'i386'
 
 ### STOP #############################################################
 # Do not change anything beyond this point.
+
+#
+# load system wide and local settings
+#
+
+import os
+
+if os.path.exists('/etc/irgsh/irgsh_node.py'):
+    execfile('/etc/irgsh/irgsh_node.py')
+
+if os.path.exists('settings.py'):
+    extra = os.path.abspath('settings.py')
+    this = os.path.abspath(__file__)
+    if this.endswith('.pyc'): this = this[:-1]
+    if extra != this:
+        execfile('settings.py')
+
+#
+# queue definition
+#
 
 CELERY_QUEUES = {
     'builder': {
