@@ -32,6 +32,9 @@ class SSLTransport(xmlrpclib.SafeTransport):
         } )
         return  xmlrpclib.SafeTransport.make_connection(self, host_cert)
 
+class InvalidConfiguration(Exception):
+    pass
+
 class IrgshNode(object):
     assignment = -1
     _uploading = False
@@ -42,23 +45,19 @@ class IrgshNode(object):
         try:
             server = config.get('irgsh', 'server')
         except ConfigParser.NoSectionError:
-            print "No 'irgsh' section in configuration file(s):"
-            sys.exit(-1)
+            raise InvalidConfiguration, "No 'irgsh' section in configuration file(s):"
         except ConfigParser.NoOptionError:
-            print "No 'server' option in configuration file(s):"
-            sys.exit(-1)
+            raise InvalidConfiguration, "No 'server' option in configuration file(s):"
              
         try:
             self.node_name = config.get('irgsh', 'node-name')
         except ConfigParser.NoOptionError:
-            print "No 'node-name' option in configuration file(s):"
-            sys.exit(-1)
+            raise InvalidConfiguration, "No 'node-name' option in configuration file(s):"
 
         try:
             self.build_path = config.get('irgsh', 'build-path')
         except ConfigParser.NoOptionError:
-            print "No 'build-path' option in configuration file(s):"
-            sys.exit(-1)
+            raise InvalidConfiguration, "No 'build-path' option in configuration file(s):"
 
         cert = None
         key = None
@@ -71,8 +70,7 @@ class IrgshNode(object):
             try:
                 key = config.get('irgsh', 'cert-key')
             except ConfigParser.NoOptionError:
-                print "No 'cert-key' option in configuration file(s):"
-                sys.exit(-1)
+                raise InvalidConfiguration, "No 'cert-key' option in configuration file(s):"
 
             transport = SSLTransport(cert, key)
         else:
@@ -208,7 +206,11 @@ class IrgshNode(object):
 
 def main():
     t = IrgshNode()
-    t.start()
+    try:
+        t.start()
+    except InvalidConfiguration, e:
+        print >>sys.stderr, e
+        sys.exit(-1)
 
 if __name__ == '__main__':
     main()
