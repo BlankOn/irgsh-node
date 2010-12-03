@@ -32,10 +32,11 @@ class SSLTransport(xmlrpclib.SafeTransport):
         } )
         return  xmlrpclib.SafeTransport.make_connection(self, host_cert)
 
-class IrgshNode:
+class IrgshNode(object):
     assignment = -1
     _uploading = False
-    def __init__(self):
+
+    def start(self):
         config = ConfigParser.ConfigParser()
         files = config.read(['/etc/irgsh/irgsh-node.conf','irgsh-node.conf'])
         try:
@@ -207,6 +208,7 @@ class IrgshNode:
 
 def main():
     t = IrgshNode()
+    t.start()
 
 if __name__ == '__main__':
     main()
