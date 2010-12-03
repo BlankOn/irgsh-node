@@ -39,11 +39,11 @@ class IrgshNode(object):
     assignment = -1
     _uploading = False
 
-    def start(self):
+    def load_config(self):
         config = ConfigParser.ConfigParser()
         files = config.read(['/etc/irgsh/irgsh-node.conf','irgsh-node.conf'])
         try:
-            server = config.get('irgsh', 'server')
+            self.server = config.get('irgsh', 'server')
         except ConfigParser.NoSectionError:
             raise InvalidConfiguration, "No 'irgsh' section in configuration file(s):"
         except ConfigParser.NoOptionError:
@@ -59,28 +59,34 @@ class IrgshNode(object):
         except ConfigParser.NoOptionError:
             raise InvalidConfiguration, "No 'build-path' option in configuration file(s):"
 
-        cert = None
-        key = None
+        self.cert = None
+        self.key = None
         try:
-            cert = config.get('irgsh', 'cert')
+            self.cert = config.get('irgsh', 'cert')
         except ConfigParser.NoOptionError:
             pass
 
-        if cert is not None:
+        if self.cert is not None:
             try:
-                key = config.get('irgsh', 'cert-key')
+                self.key = config.get('irgsh', 'cert-key')
             except ConfigParser.NoOptionError:
                 raise InvalidConfiguration, "No 'cert-key' option in configuration file(s):"
 
+    def connect(self):
+        if self.cert is not None:
             transport = SSLTransport(cert, key)
         else:
             transport = None
 
         try:
-            self.x = xmlrpclib.ServerProxy(server, transport = transport)
+            self.x = xmlrpclib.ServerProxy(self.server, transport = transport)
         except Exception as e:
             print "Unable to contact %s: %s" % (server, str(e))
             sys.exit(-1)
+
+    def start(self):
+        self.load_config()
+        self.connect()
 
         while True:
             Timer(1, self.upload())
