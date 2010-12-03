@@ -42,6 +42,9 @@ class IrgshNodeError(Exception):
 class InvalidConfiguration(IrgshNodeError):
     pass
 
+class UnableToConnectError(IrgshNodeError):
+    pass
+
 class IrgshNode(object):
     assignment = -1
     _uploading = False
@@ -106,7 +109,7 @@ class IrgshNode(object):
             self.x = xmlrpclib.ServerProxy(self.server, transport=transport)
         except Exception as e:
             self.log.critical("Unable to contact %s: %s" % (server, str(e)))
-            sys.exit(-1)
+            raise UnableToConnectError
 
     def start(self):
         self.setup_logging()
@@ -253,6 +256,8 @@ def main():
         t.start()
     except InvalidConfiguration, e:
         print >>sys.stderr, e
+        sys.exit(-1)
+    except UnableToConnectError, e:
         sys.exit(-1)
 
 if __name__ == '__main__':
