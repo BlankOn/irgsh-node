@@ -9,6 +9,7 @@ import tarfile
 import shutil
 import bz2
 from threading import Timer
+import logging
 
 from debian_bundle import deb822
 from debian_bundle.changelog import Changelog
@@ -44,6 +45,15 @@ class IrgshNode(object):
 
     def __init__(self, config):
         self.config = config
+        self.log = logging.getLogger('irgsh-node')
+
+    def setup_logging(self):
+        self.log.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        self.log.addHandler(handler)
 
     def load_config(self):
         config = self.config
@@ -96,6 +106,7 @@ class IrgshNode(object):
             sys.exit(-1)
 
     def start(self):
+        self.setup_logging()
         self.load_config()
         self.connect()
 
