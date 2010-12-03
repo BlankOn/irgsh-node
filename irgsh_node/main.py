@@ -39,7 +39,7 @@ class SSLTransport(xmlrpclib.SafeTransport):
 class IrgshNodeError(Exception):
     pass
 
-class InvalidConfiguration(IrgshNodeError):
+class InvalidConfigurationError(IrgshNodeError):
     pass
 
 class UnableToConnectError(IrgshNodeError):
@@ -67,22 +67,22 @@ class IrgshNode(object):
         try:
             self.server = config.get('irgsh', 'server')
         except ConfigParser.NoSectionError:
-            raise InvalidConfiguration, \
+            raise InvalidConfigurationError, \
                   "No 'irgsh' section in configuration file(s):"
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, \
+            raise InvalidConfigurationError, \
                   "No 'server' option in configuration file(s):"
 
         try:
             self.node_name = config.get('irgsh', 'node-name')
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, \
+            raise InvalidConfigurationError, \
                   "No 'node-name' option in configuration file(s):"
 
         try:
             self.build_path = config.get('irgsh', 'build-path')
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, \
+            raise InvalidConfigurationError, \
                   "No 'build-path' option in configuration file(s):"
 
         self.cert = None
@@ -96,7 +96,7 @@ class IrgshNode(object):
             try:
                 self.key = config.get('irgsh', 'cert-key')
             except ConfigParser.NoOptionError:
-                raise InvalidConfiguration, \
+                raise InvalidConfigurationError, \
                       "No 'cert-key' option in configuration file(s):"
 
     def connect(self):
@@ -254,7 +254,7 @@ def main():
     t = IrgshNode(config)
     try:
         t.start()
-    except InvalidConfiguration, e:
+    except InvalidConfigurationError, e:
         print >>sys.stderr, e
         sys.exit(-1)
     except UnableToConnectError, e:
