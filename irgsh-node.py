@@ -205,4 +205,9 @@ class IrgshNode:
         else:
             self.x.assignment_wait_for_upload(self.assignment, result)
 
-t = IrgshNode()
+def main():
+    t = IrgshNode()
+
+if __name__ == '__main__':
+    main()
+
