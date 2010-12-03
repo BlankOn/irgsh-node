@@ -39,9 +39,12 @@ class IrgshNode(object):
     assignment = -1
     _uploading = False
 
+    def __init__(self, config):
+        self.config = config
+
     def load_config(self):
-        config = ConfigParser.ConfigParser()
-        files = config.read(['/etc/irgsh/irgsh-node.conf','irgsh-node.conf'])
+        config = self.config
+
         try:
             self.server = config.get('irgsh', 'server')
         except ConfigParser.NoSectionError:
@@ -211,7 +214,10 @@ class IrgshNode(object):
             self.x.assignment_wait_for_upload(self.assignment, result)
 
 def main():
-    t = IrgshNode()
+    config = ConfigParser.ConfigParser()
+    files = config.read(['/etc/irgsh/irgsh-node.conf','irgsh-node.conf'])
+
+    t = IrgshNode(config)
     try:
         t.start()
     except InvalidConfiguration, e:
