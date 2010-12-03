@@ -18,6 +18,8 @@ from debian_bundle.changelog import Changelog
 import bz2
 from threading import Timer
 
+CONFIG_FILES = ['/etc/irgsh/irgsh-node.conf','irgsh-node.conf']
+
 class SSLTransport(xmlrpclib.SafeTransport):
     
     def __init__(self, cert, key):
@@ -215,7 +217,7 @@ class IrgshNode(object):
 
 def main():
     config = ConfigParser.ConfigParser()
-    files = config.read(['/etc/irgsh/irgsh-node.conf','irgsh-node.conf'])
+    files = config.read(CONFIG_FILES)
 
     t = IrgshNode(config)
     try:
