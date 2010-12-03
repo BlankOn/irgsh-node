@@ -2,37 +2,38 @@
 
 import ConfigParser, os
 import errno
-import sys 
+import sys
 import time
 import xmlrpclib
 import tarfile
 import shutil
+import bz2
+from threading import Timer
+
+from debian_bundle import deb822
+from debian_bundle.changelog import Changelog
+
 from irgsh.dvcs import *
 from irgsh.sourcepackage import *
 from irgsh.builder_pbuilder import *
 from irgsh.buildjob import BuildJob
 from irgsh.uploader_dput import UploaderDput
 from irgsh.uploadlog import UploadLog
-from debian_bundle import deb822
-from debian_bundle.changelog import Changelog
-import bz2
-from threading import Timer
 
 CONFIG_FILES = ['/etc/irgsh/irgsh-node.conf','irgsh-node.conf']
 
 class SSLTransport(xmlrpclib.SafeTransport):
-    
     def __init__(self, cert, key):
         self.cert = cert
-        self.key  = key
-        self._use_datetime = True 
+        self.key = key
+        self._use_datetime = True
 
     def make_connection(self, host):
         host_cert = (host, {
-            'cert_file' :  self.cert,
-            'key_file'  :  self.key,
-        } )
-        return  xmlrpclib.SafeTransport.make_connection(self, host_cert)
+            'cert_file': self.cert,
+            'key_file': self.key,
+        })
+        return xmlrpclib.SafeTransport.make_connection(self, host_cert)
 
 class InvalidConfiguration(Exception):
     pass
@@ -50,19 +51,23 @@ class IrgshNode(object):
         try:
             self.server = config.get('irgsh', 'server')
         except ConfigParser.NoSectionError:
-            raise InvalidConfiguration, "No 'irgsh' section in configuration file(s):"
+            raise InvalidConfiguration, \
+                  "No 'irgsh' section in configuration file(s):"
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, "No 'server' option in configuration file(s):"
-             
+            raise InvalidConfiguration, \
+                  "No 'server' option in configuration file(s):"
+
         try:
             self.node_name = config.get('irgsh', 'node-name')
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, "No 'node-name' option in configuration file(s):"
+            raise InvalidConfiguration, \
+                  "No 'node-name' option in configuration file(s):"
 
         try:
             self.build_path = config.get('irgsh', 'build-path')
         except ConfigParser.NoOptionError:
-            raise InvalidConfiguration, "No 'build-path' option in configuration file(s):"
+            raise InvalidConfiguration, \
+                  "No 'build-path' option in configuration file(s):"
 
         self.cert = None
         self.key = None
@@ -75,7 +80,8 @@ class IrgshNode(object):
             try:
                 self.key = config.get('irgsh', 'cert-key')
             except ConfigParser.NoOptionError:
-                raise InvalidConfiguration, "No 'cert-key' option in configuration file(s):"
+                raise InvalidConfiguration, \
+                      "No 'cert-key' option in configuration file(s):"
 
     def connect(self):
         if self.cert is not None:
@@ -84,7 +90,7 @@ class IrgshNode(object):
             transport = None
 
         try:
-            self.x = xmlrpclib.ServerProxy(self.server, transport = transport)
+            self.x = xmlrpclib.ServerProxy(self.server, transport=transport)
         except Exception as e:
             print "Unable to contact %s: %s" % (server, str(e))
             sys.exit(-1)
@@ -97,7 +103,7 @@ class IrgshNode(object):
             Timer(1, self.upload())
             self.run()
             time.sleep(10)
- 
+
     def upload(self):
         if self._uploading:
             return
@@ -116,7 +122,8 @@ class IrgshNode(object):
                     info = reply
                     task_info = self.x.get_task_info(info['task'])
                     distribution = task_info['distribution']
-                    upload_log = os.path.join(self.build_path, "upload.%d.log" % assignment) 
+                    upload_log = os.path.join(self.build_path, \
+                                              "upload.%d.log" % assignment)
                     log = UploadLog(upload_log)
                     uploader = UploaderDput("", distribution, info['dsc'])
                     if uploader.upload():
@@ -132,9 +139,9 @@ class IrgshNode(object):
                     os.unlink(upload_log)
         except Exception as e:
             print e
-        
+
         self._uploading = False
-        
+
     def run(self):
         print "Running"
         try:
@@ -164,7 +171,10 @@ class IrgshNode(object):
                     self.log = None
                     if filename is not None:
                         with open(filename, "rb") as handle:
-                            self.x.assignment_upload_log(self.assignment, "%s.bz2" % os.path.basename(filename), xmlrpclib.Binary(bz2.compress(handle.read())))
+                            fname = "%s.bz2" % os.path.basename(filename)
+                            data = xmlrpclib.Binary(bz2.compress(handle.read()))
+                            self.x.assignment_upload_log(self.assignment,
+                                                         fname, data)
 
             self.assignment = None
             self.log = None
@@ -178,7 +188,7 @@ class IrgshNode(object):
                 raise Exception(reply)
             if reply == -1:
                 print "No more tasks"
-                return 
+                return
             self.id = reply
             self.assign()
         except Exception as e:
@@ -190,11 +200,12 @@ class IrgshNode(object):
         if code == -1:
             self.x.task_init_failed(self.id, reply)
             raise Exception(reply)
-        
+
     def build(self):
         self.x.builder_ping(self.node_name)
         self.x.assignment_building(self.assignment)
-        self.log = BuildLog(os.path.join(self.build_path, "task.%d.log" % self.assignment))
+        self.log = BuildLog(os.path.join(self.build_path, \
+                                         "task.%d.log" % self.assignment))
         diff = DvcsLoader("tarball", self.info['debian_copy'])
 
         orig_copy = None
@@ -211,7 +222,9 @@ class IrgshNode(object):
 
         info = self.x.get_task_info(self.id)
         if info['state'] == "F":
-            self.x.assignment_cancel(self.assignment, "Cancelling successful build because the task as a whole is failed")
+            self.x.assignment_cancel(self.assignment, \
+                                     "Cancelling successful build because " \
+                                     "the task as a whole is failed")
         else:
             self.x.assignment_wait_for_upload(self.assignment, result)
 
