@@ -36,7 +36,10 @@ class SSLTransport(xmlrpclib.SafeTransport):
         })
         return xmlrpclib.SafeTransport.make_connection(self, host_cert)
 
-class InvalidConfiguration(Exception):
+class IrgshNodeError(Exception):
+    pass
+
+class InvalidConfiguration(IrgshNodeError):
     pass
 
 class IrgshNode(object):
