@@ -14,5 +14,5 @@ setup(name='irgsh-node',
       maintainer='BlankOn Developers',
       maintainer_email='blankon-dev@googlegroups.com',
       entry_points={'console_scripts': ['irgsh-node = irgsh_node.main:main']},
-      install_requires=['setuptools', 'python-debian'],
+      install_requires=['setuptools', 'python-debian', 'celery'],
      )
