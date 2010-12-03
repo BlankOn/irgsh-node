@@ -102,7 +102,7 @@ class IrgshNode(object):
         try:
             self.x = xmlrpclib.ServerProxy(self.server, transport=transport)
         except Exception as e:
-            print "Unable to contact %s: %s" % (server, str(e))
+            self.log.critical("Unable to contact %s: %s" % (server, str(e)))
             sys.exit(-1)
 
     def start(self):
@@ -123,7 +123,8 @@ class IrgshNode(object):
         try:
             (code, reply) = self.x.get_assignments_to_upload(self.node_name)
             if code == -1:
-                print "Error getting assignments to upload: %s" % reply
+                self.log.error("Error getting assignments to upload: %s" %
+                               reply)
             else:
                 assignments = reply
                 for assignment in assignments:
@@ -143,25 +144,26 @@ class IrgshNode(object):
                     else:
                         with open(upload_log, "r") as handle:
                             reason = handle.read()
-                        print "Upload %d failed: %s" % (assignment, reason)
+                        self.log.error("Upload %d failed: %s" %
+                                       (assignment, reason))
                         self.x.assignment_fail(assignment, reason)
                     log.close()
                     log = None
                     os.unlink(upload_log)
         except Exception as e:
-            print e
+            self.log.error(str(e))
 
         self._uploading = False
 
     def run(self):
-        print "Running"
+        self.log.debug("Running")
         try:
             self.x.builder_ping(self.node_name)
             (code, reply) = self.x.get_assignment_for_builder(self.node_name)
             if code == -1:
                 raise Exception(reply)
             if reply == -1:
-                print "No pending assignment for me now. Look for new one.."
+                self.log.debug("No pending assignment for me now. Look for new one..")
             else:
                 self.assignment = reply
                 (code, reply) = self.x.get_assignment_info(self.assignment)
@@ -198,12 +200,12 @@ class IrgshNode(object):
             if code == -1:
                 raise Exception(reply)
             if reply == -1:
-                print "No more tasks"
+                self.log.debug("No more tasks")
                 return
             self.id = reply
             self.assign()
         except Exception as e:
-            print "Error getting unassigned task: %s" % str(e)
+            self.log.error("Error getting unassigned task: %s" % str(e))
 
     def assign(self):
         self.x.builder_ping(self.node_name)
