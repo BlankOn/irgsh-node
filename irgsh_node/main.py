@@ -66,7 +66,7 @@ class IrgshNode(object):
         except ConfigParser.NoOptionError:
             pass
 
-        if cert != None:
+        if cert is not None:
             try:
                 key = config.get('irgsh', 'cert-key')
             except ConfigParser.NoOptionError:
@@ -147,11 +147,11 @@ class IrgshNode(object):
             if self.assignment != -1:
                 self.x.assignment_fail(self.assignment, str(e))
 
-                if self.log != None:
+                if self.log is not None:
                     filename = self.log.filename
                     self.log.close()
                     self.log = None
-                    if filename != None:
+                    if filename is not None:
                         with open(filename, "rb") as handle:
                             self.x.assignment_upload_log(self.assignment, "%s.bz2" % os.path.basename(filename), xmlrpclib.Binary(bz2.compress(handle.read())))
 
