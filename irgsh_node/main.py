@@ -184,10 +184,10 @@ class IrgshNode(object):
             if self.assignment != -1:
                 self.x.assignment_fail(self.assignment, str(e))
 
-                if self.log is not None:
-                    filename = self.log.filename
-                    self.log.close()
-                    self.log = None
+                if self.build_log is not None:
+                    filename = self.build_log.filename
+                    self.build_log.close()
+                    self.build_log = None
                     if filename is not None:
                         with open(filename, "rb") as handle:
                             fname = "%s.bz2" % os.path.basename(filename)
@@ -196,7 +196,7 @@ class IrgshNode(object):
                                                          fname, data)
 
             self.assignment = None
-            self.log = None
+            self.build_log = None
         except Exception as e:
             raise
 
@@ -223,8 +223,8 @@ class IrgshNode(object):
     def build(self):
         self.x.builder_ping(self.node_name)
         self.x.assignment_building(self.assignment)
-        self.log = BuildLog(os.path.join(self.build_path, \
-                                         "task.%d.log" % self.assignment))
+        self.build_log = BuildLog(os.path.join(self.build_path, \
+                                               "task.%d.log" % self.assignment))
         diff = DvcsLoader("tarball", self.info['debian_copy'])
 
         orig_copy = None
@@ -236,8 +236,8 @@ class IrgshNode(object):
         build_job = BuildJob(diff.instance, orig_copy)
         result = build_job.build(builder)
 
-        self.log.close()
-        self.log = None
+        self.build_log.close()
+        self.build_log = None
 
         info = self.x.get_task_info(self.id)
         if info['state'] == "F":
