@@ -22,9 +22,12 @@ CONFIG_MAPPING = {
         'cert': 'SSL_CERT',
         'cert-key': 'SSL_KEY',
         'arch': 'ARCHITECTURE',
-    }
+    },
 }
-CONFIG_REQUIRED = CONFIG_MAPPING.keys() # all are required
+CONFIG_REQUIRED = {
+    'irgsh': ['node-name', 'build-path', 'server',
+              'cert', 'cert-key', 'arch'],
+}
 
 def init_settings(settings):
     # Define celery queues
@@ -61,7 +64,7 @@ def load_config(config_file):
                 value = cp.get(section, key)
                 config[name] = value
             except NoOptionError:
-                if key in CONFIG_REQUIRED:
+                if key in CONFIG_REQUIRED[section]:
                     raise ValueError, 'Key not found: %s' % key
 
     return config
