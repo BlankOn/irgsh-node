@@ -28,6 +28,9 @@ CONFIG_REQUIRED = {
     'irgsh': ['node-name', 'build-path', 'server',
               'cert', 'cert-key', 'arch'],
 }
+CONFIG_TYPE_MAPPER = {
+    'BROKER_PORT': int
+}
 
 def init_settings(settings):
     # Define celery queues
@@ -66,6 +69,11 @@ def load_config(config_file):
             except NoOptionError:
                 if key in CONFIG_REQUIRED[section]:
                     raise ValueError, 'Key not found: %s' % key
+
+    # Type mapping
+    for key, mapper in CONFIG_TYPE_MAPPER.items():
+        if key in config:
+            config[key] = mapper(config[key])
 
     return config
 
