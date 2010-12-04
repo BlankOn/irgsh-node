@@ -14,14 +14,15 @@ from irgsh_node.conf import global_settings
 
 ENVIRONMENT_VARIABLE = 'IRGSH_NODE_CONFIG'
 
-CONFIG_SECTION = 'irgsh'
 CONFIG_MAPPING = {
-    'node-name': 'NODE_NAME',
-    'build-path': 'BUILD_PATH',
-    'server': 'SERVER',
-    'cert': 'SSL_CERT',
-    'cert-key': 'SSL_KEY',
-    'arch': 'ARCHITECTURE',
+    'irgsh': {
+        'node-name': 'NODE_NAME',
+        'build-path': 'BUILD_PATH',
+        'server': 'SERVER',
+        'cert': 'SSL_CERT',
+        'cert-key': 'SSL_KEY',
+        'arch': 'ARCHITECTURE',
+    }
 }
 CONFIG_REQUIRED = CONFIG_MAPPING.keys() # all are required
 
@@ -54,13 +55,14 @@ def load_config(config_file):
 
     # Load config values
     config = {}
-    for key, name in CONFIG_MAPPING.items():
-        try:
-            value = cp.get(CONFIG_SECTION, key)
-            config[name] = value
-        except NoOptionError:
-            if key in CONFIG_REQUIRED:
-                raise ValueError, 'Key not found: %s' % key
+    for section in CONFIG_MAPPING:
+        for key, name in CONFIG_MAPPING[section].items():
+            try:
+                value = cp.get(section, key)
+                config[name] = value
+            except NoOptionError:
+                if key in CONFIG_REQUIRED:
+                    raise ValueError, 'Key not found: %s' % key
 
     return config
 
