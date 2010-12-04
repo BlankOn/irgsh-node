@@ -22,11 +22,17 @@ CONFIG_MAPPING = {
         'cert': 'SSL_CERT',
         'cert-key': 'SSL_KEY',
         'arch': 'ARCHITECTURE',
+        'workers': 'CELERYD_CONCURRENCY',
     },
+    'queue': {
+        'host': 'BROKER_HOST',
+        'port': 'BROKER_PORT',
+    }
 }
 CONFIG_REQUIRED = {
     'irgsh': ['node-name', 'build-path', 'server',
               'cert', 'cert-key', 'arch'],
+    'queue': ['host'],
 }
 CONFIG_TYPE_MAPPER = {
     'BROKER_PORT': int
