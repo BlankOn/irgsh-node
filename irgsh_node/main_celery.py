@@ -1,10 +1,8 @@
 import os
 
-DEFAULT_CONFIG_MODULE = 'irgsh_node.settings'
-
 def main():
-    if not 'CELERY_CONFIG_MODULE' in os.environ:
-        os.environ['CELERY_CONFIG_MODULE'] = DEFAULT_CONFIG_MODULE
+    os.environ.setdefault('IRGSH_NODE_COFNIG', 'irgsh-node.conf')
+    os.environ.setdefault('CELERY_LOADER', 'irgsh_node.loader.IrgshNodeLoader')
 
     from celery.bin import celeryd
     celeryd.main()
