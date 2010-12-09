@@ -1,7 +1,8 @@
 import os
 import gzip
+from datetime import timedelta
 
-from celery.task import Task
+from celery.task import Task, PeriodicTask
 
 from irgsh.error import IrgshException
 from irgsh.packager import Packager
@@ -79,4 +80,26 @@ class BuildPackage(Task):
         # TODO add log file to (local) upload queue
 
 build_package = BuildPackage
+
+
+class Uploader(PeriodicTask):
+    """
+    Uploader periodic task.
+
+    Note that celery beat has to be activated.
+    """
+
+    run_every = timedelta(seconds=5*60)
+
+    def run(self, **kwargs):
+        pass
+
+        # TODO
+        # 1. check if previous uploader task is still running
+        #    if so, return immediately
+        # 2. check upload queue in the local database
+        # 3. upload each item in upload queue, ordered by timestamp
+        # 4. mark item as uploaded and notify manager upon successful upload
+        # 5. otherwise, update timestamp so it will have lower priority
+        #    in the next run
 
