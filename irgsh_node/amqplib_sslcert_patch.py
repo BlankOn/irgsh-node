@@ -1,5 +1,7 @@
 from amqplib.client_0_8 import transport
 
+_use_configured_cert = False
+
 class SSLTransportWithCert(transport.SSLTransport):
     def __init__(self, host, connect_timeout, ssl_cert=None, ssl_key=None):
         super(SSLTransportWithCert, self).__init__(host, connect_timeout):
@@ -20,10 +22,22 @@ class SSLTransportWithCert(transport.SSLTransport):
 original_create_transport = create_transport
 def create_transport_with_cert(host, connect_timeout, ssl=False,
                                ssl_cert=None, ssl_key=None):
+    if _use_configured_cert:
+        from irgsh_node.conf import settings
+        if ssl_cert is None:
+            ssl_cert = settings.SSL_CERT
+        if ssl_key is None:
+            ssl_key = settings.SSL_KEY
+        ssl = True
+
     if not ssl or ssl_cert is None:
         return original_create_transport(host, connect_timeout, ssl)
     else:
         return SSLTransportWithCert(host, connect_timeout, ssl_cert, ssl_key)
 
 transport.create_transport = create_transport_with_cert
+
+def use_configured_cert(enabled=True):
+    global _use_configured_cert
+    _use_configured_cert = enabled
 
