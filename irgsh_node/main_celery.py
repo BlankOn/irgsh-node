@@ -1,7 +1,7 @@
 import os
 
 def main():
-    import amqplib_sslcert_patch
+    from . import amqplib_sslcert_patch
     amqplib_sslcert_patch.use_configured_cert()
 
     os.environ.setdefault('IRGSH_NODE_CONFIG', 'irgsh-node.conf')
