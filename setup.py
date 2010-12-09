@@ -6,11 +6,13 @@ def get_version():
     import irgsh_node
     return irgsh_node.__version__
 
+packages = ['irgsh_node', 'irgsh_node.conf']
+
 setup(name='irgsh-node', 
       version=get_version(),
       description='irgsh builder',
       url='http://irgsh.blankonlinux.or.id',
-      packages=['irgsh_node'],
+      packages=packages,
       maintainer='BlankOn Developers',
       maintainer_email='blankon-dev@googlegroups.com',
       entry_points={'console_scripts': ['irgsh-node = irgsh_node.main:main',
