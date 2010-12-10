@@ -4,7 +4,7 @@ _use_configured_cert = False
 
 class SSLTransportWithCert(transport.SSLTransport):
     def __init__(self, host, connect_timeout, ssl_cert=None, ssl_key=None):
-        super(SSLTransportWithCert, self).__init__(host, connect_timeout):
+        super(SSLTransportWithCert, self).__init__(host, connect_timeout)
         self.ssl_cert = ssl_cert
         self.ssl_key = ssl_key
 
@@ -19,7 +19,7 @@ class SSLTransportWithCert(transport.SSLTransport):
                                      keyfile=self.ssl_key,
                                      certfile=self.ssl_cert)
 
-original_create_transport = create_transport
+original_create_transport = transport.create_transport
 def create_transport_with_cert(host, connect_timeout, ssl=False,
                                ssl_cert=None, ssl_key=None):
     if _use_configured_cert:
