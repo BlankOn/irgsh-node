@@ -8,8 +8,9 @@ from irgsh.error import IrgshException
 from irgsh.packager import Packager
 from irgsh.builders.pbuilder import Pbuilder
 
-from .conf import settings
-from . import manager
+from irgsh_node.conf import settings
+from irgsh_node.models import get_session, UploadQueue, CT_RESULT, CT_LOG
+from irgsh_node import manager
 
 class BuildPackage(Task):
     ignore_result = True
@@ -65,19 +66,32 @@ class BuildPackage(Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         manager.update_status(task_id, manager.SUCCESS)
-
-        # TODO add package to (local) upload queue
-        # TODO add log file to (local) upload queue
+        self.upload_package(task_id, retval)
+        self.upload_log(task_id, kwargs['task_retries'])
 
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
         manager.update_status(task_id, manager.RETRY)
-
-        # TODO add log file to (local) upload queue
+        self.upload_log(task_id, kwargs['task_retries'])
 
     def on_failure(self, task_id, args, kwargs, einfo=None):
         manager.update_status(task_id, manager.FAILURE)
+        self.upload_log(task_id, kwargs['task_retries'])
 
-        # TODO add log file to (local) upload queue
+    def upload_package(self, task_id, changes):
+        self.upload(task_id, 'result/%s' % changes, CT_RESULT)
+
+    def upload_log(self, task_id, index):
+        self.upload(task_id, 'logs/log.%s.gz' % index, CT_LOG)
+
+    def upload(self, task_id, path, content_type):
+        queue = UploadQueue()
+        queue.task_id = task_id
+        queue.path = path
+        queue.content_type = content_type
+
+        session = get_session()
+        session.add(queue)
+        session.commit()
 
 build_package = BuildPackage
 
