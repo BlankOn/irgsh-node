@@ -6,3 +6,6 @@ class IrgshNodeLoader(BaseLoader):
         self.configured = True
         return settings
 
+    def on_worker_init(self):
+        self.import_default_modules()
+
