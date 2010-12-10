@@ -50,6 +50,7 @@ class BuildPackage(Task):
 
     def _run(self, task_id, distribution, specification,
              resultdir, stdout, stderr):
+        clog = self.get_logger(**kwargs)
         manager.update_status(task_id, manager.STARTED)
 
         # Create and prepare builder (pbuilder)
@@ -57,9 +58,14 @@ class BuildPackage(Task):
         builder = Pbuilder(distribution, pbuilder_path)
         builder.init()
         if not os.path.exists(builder.configfile):
+            clog.info('Creating pbuilder environment for %s' % \
+                      distribution.name)
             builder.create()
 
+
         # Build package
+        clog.info('Building package %s for %s' % (specification.location,
+                                                  distribution.name))
         packager = Packager(specification, builder, resultdir,
                             stdout=stdout, stderr=stderr)
         packager.build()
@@ -69,13 +75,25 @@ class BuildPackage(Task):
         self.upload_package(task_id, retval)
         self.upload_log(task_id, kwargs['task_retries'])
 
+        clog = self.get_logger(**kwargs)
+        clog.info('Package %s for %s built successfully' % \
+                  (specification.location, distribution.name))
+
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
         manager.update_status(task_id, manager.RETRY)
         self.upload_log(task_id, kwargs['task_retries'])
 
+        clog = self.get_logger(**kwargs)
+        clog.info('Package %s for %s failed to build, retrying..' % \
+                  (specification.location, distribution.name))
+
     def on_failure(self, task_id, args, kwargs, einfo=None):
         manager.update_status(task_id, manager.FAILURE)
         self.upload_log(task_id, kwargs['task_retries'])
+
+        clog = self.get_logger(**kwargs)
+        clog.info('Package %s for %s failed to build' % \
+                  (specification.location, distribution.name))
 
     def upload_package(self, task_id, changes):
         self.upload(task_id, 'result/%s' % changes, CT_RESULT)
