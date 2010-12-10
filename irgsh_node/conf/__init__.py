@@ -23,6 +23,7 @@ CONFIG_MAPPING = {
         'cert-key': 'SSL_KEY',
         'arch': 'ARCHITECTURE',
         'workers': 'CELERYD_CONCURRENCY',
+        'db': 'LOCAL_DATABASE'
     },
     'queue': {
         'host': 'BROKER_HOST',
