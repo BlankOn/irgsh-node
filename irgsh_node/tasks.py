@@ -111,8 +111,6 @@ class BuildPackage(Task):
         session.add(queue)
         session.commit()
 
-build_package = BuildPackage
-
 
 class Uploader(PeriodicTask):
     """
