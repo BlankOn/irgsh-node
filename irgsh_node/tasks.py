@@ -41,9 +41,6 @@ class BuildPackage(Task):
             self._run(task_id, distribution, specification,
                       resultdir, stdout, stderr)
 
-        except IrgshException, e:
-            self.retry([distribution, specification], kwargs, exc=e)
-
         finally:
             if logger is not None:
                 logger.close()
