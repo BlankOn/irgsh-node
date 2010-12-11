@@ -69,7 +69,7 @@ class BuildPackage(Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         manager.update_status(task_id, manager.SUCCESS)
-        self.upload_package(task_id, retval)
+        self.upload_package(task_id, args[0], retval)
         self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
@@ -92,16 +92,25 @@ class BuildPackage(Task):
         clog.info('Package %s for %s failed to build' % \
                   (specification.location, distribution.name))
 
-    def upload_package(self, task_id, changes):
-        self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT)
+    def upload_package(self, task_id, distribution, changes):
+        extra = {'distribution': {'name': distribution.name,
+                                  'mirror': distribution.mirror,
+                                  'dist': distribution.dist,
+                                  'components': distribution.components,
+                                  'extra': distribution.extra}}
+
+        self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT,
+                    extra)
 
     def upload_log(self, task_id, index):
         self.upload(task_id, 'logs/log.%s.gz' % index, contss.TYPE_LOG)
 
-    def upload(self, task_id, path, content_type):
-        data = {'task_id': task_id,
-                'path': path,
-                'content_type': content_type}
+    def upload(self, task_id, path, content_type, **extra):
+        data = {}
+        data.update(extra)
+        data.update({'task_id': task_id,
+                     'path': path,
+                     'content_type': content_type})
 
         queue = Queue(settings.LOCAL_DATABASE)
         queue.put(data)
