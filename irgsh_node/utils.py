@@ -1,5 +1,7 @@
 import urllib
 
+from poster.encode import multipart_encode
+
 from .conf import settings
 
 def send_message(url, param=None):

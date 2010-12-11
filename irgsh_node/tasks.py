@@ -39,14 +39,14 @@ class BuildPackage(Task):
 
             # Execute builder
             self._run(task_id, distribution, specification,
-                      resultdir, stdout, stderr)
+                      resultdir, stdout, stderr, **kwargs)
 
         finally:
             if logger is not None:
                 logger.close()
 
     def _run(self, task_id, distribution, specification,
-             resultdir, stdout, stderr):
+             resultdir, stdout, stderr, **kwargs):
         clog = self.get_logger(**kwargs)
         manager.update_status(task_id, manager.STARTED)
 
@@ -68,6 +68,8 @@ class BuildPackage(Task):
         packager.build()
 
     def on_success(self, retval, task_id, args, kwargs):
+        distribution, specification = args
+
         manager.update_status(task_id, manager.SUCCESS)
         self.upload_package(task_id, args[0], retval)
         self.upload_log(task_id, kwargs['task_retries'])
@@ -77,6 +79,8 @@ class BuildPackage(Task):
                   (specification.location, distribution.name))
 
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
+        distribution, specification = args
+
         manager.update_status(task_id, manager.RETRY)
         self.upload_log(task_id, kwargs['task_retries'])
 
@@ -85,6 +89,8 @@ class BuildPackage(Task):
                   (specification.location, distribution.name))
 
     def on_failure(self, task_id, args, kwargs, einfo=None):
+        distribution, specification = args
+
         manager.update_status(task_id, manager.FAILURE)
         self.upload_log(task_id, kwargs['task_retries'])
 
@@ -103,7 +109,7 @@ class BuildPackage(Task):
                     extra)
 
     def upload_log(self, task_id, index):
-        self.upload(task_id, 'logs/log.%s.gz' % index, contss.TYPE_LOG)
+        self.upload(task_id, 'logs/log.%s.gz' % index, consts.TYPE_LOG)
 
     def upload(self, task_id, path, content_type, **extra):
         data = {}

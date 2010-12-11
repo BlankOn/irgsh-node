@@ -4,7 +4,7 @@ import time
 from cStringIO import StringIO
 
 from irgsh.distribution import Distribution
-from irgsh.uploaders import Dput
+from irgsh.uploaders.dput import Dput
 
 from irgsh_node.conf import settings
 from irgsh_node.localqueue import Queue

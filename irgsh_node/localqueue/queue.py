@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .models import get_session, LocalQueue, FetchedItem
+from .models import get_session, LocalQueue
 
 class Queue(object):
     def __init__(self, uri):
