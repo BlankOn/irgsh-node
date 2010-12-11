@@ -53,12 +53,6 @@ class BuildPackage(Task):
         # Create and prepare builder (pbuilder)
         pbuilder_path = settings.PBUILDER_PATH
         builder = Pbuilder(distribution, pbuilder_path)
-        builder.init()
-        if not os.path.exists(builder.configfile):
-            clog.info('Creating pbuilder environment for %s' % \
-                      distribution.name)
-            builder.create()
-
 
         # Build package
         clog.info('Building package %s for %s' % (specification.location,
