@@ -25,42 +25,39 @@ class Uploader(object):
             self.log.info('Uploading..')
             time.sleep(self.delay)
 
-            # TODO
-            # 1. check if previous uploader task is still running
-            #    if so, return immediately
-            #    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            #    - no need to do the above again because the upload
-            #      will be performed sequentially
-            #
-            # 2. check upload queue in the local database
-            # 3. upload each item in upload queue, ordered by timestamp
+            # Get last item in the upload queue
             item = self.queue.get()
             if item is None:
                 continue
 
-            # 4. mark item as uploaded and notify manager upon successful upload
             data = item.payload
             content_type = data['content_type']
             task_id = data['task_id']
             path = data['path']
-            if content_type == consts.TYPE_RESULT:
-                self.upload_result(task_id, path)
-            else:
-                self.upload_log(task_id, path)
 
-            # 5. otherwise, update timestamp so it will have lower priority
-            #    in the next run
+            # Check if the file exists
+            taskdir = os.path.join(settings.RESULT_DIR, task_id)
+            fname = os.path.join(taskdir, path)
+            if not os.path.exists(fname):
+                self.log.warning('File not found: %s' % fname)
+                continue
 
-    def upload_result(self, task_id, path):
+            # Upload it
+            try:
+                if content_type == consts.TYPE_RESULT:
+                    self.send_result(task_id, fname)
+                else:
+                    manager.send_log(task_id, fname)
+
+                # Success! Remove item from the queue
+                self.queue.remove(item)
+            except IOError:
+                # Fail! Reset item so it will be picked up again
+                self.queue.reset(item)
+
+    def send_result(self, task_id, changes):
+        # TODO use irgsh.uploaders to upload changes file
         pass
-
-    def upload_log(self, task_id, path):
-        taskdir = os.path.join(settings.RESULT_DIR, task_id)
-        fname = os.path.join(taskdir, path)
-        if not os.path.exists(fname):
-            return
-
-        manager.send_log(task_id, fname)
 
 def main():
     uploader = Uploader()
