@@ -29,7 +29,7 @@ CONFIG_MAPPING = {
         'host': 'BROKER_HOST',
         'port': 'BROKER_PORT',
         'username': 'BROKER_USER',
-        'password': 'BROKER_PASS',
+        'password': 'BROKER_PASSWORD',
         'vhost': 'BROKER_VHOST'
     },
     'pbuilder': {
