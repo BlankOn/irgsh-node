@@ -6,7 +6,7 @@ from .conf import settings
 from .utils import send_message
 
 def update_status(task_id, state, message=''):
-    host = settings.MANAGER_URL.rstrip('/')
+    host = settings.SERVER.rstrip('/')
     url = '%s/status/%s/' % (host, task_id)
 
     param = {'state': state,
@@ -14,7 +14,7 @@ def update_status(task_id, state, message=''):
     send_message(url, param)
 
 def send_log(task_id, fname):
-    host = settings.MANAGER_URL.rstrip('/')
+    host = settings.SERVER.rstrip('/')
     url = '%s/log/%s/' % (host, task_id)
 
     param = {'log': open(fname, 'rb')}

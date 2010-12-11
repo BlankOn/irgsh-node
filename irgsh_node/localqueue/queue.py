@@ -10,7 +10,7 @@ class Queue(object):
     @property
     def session(self):
         if self._session is None:
-            self._sessions = get_session(self.uri)
+            self._session = get_session(self.uri)
         return self._session
 
     def put(self, content):

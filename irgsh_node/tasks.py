@@ -39,14 +39,14 @@ class BuildPackage(Task):
 
             # Execute builder
             self._run(task_id, distribution, specification,
-                      resultdir, stdout, stderr, **kwargs)
+                      resultdir, stdout, stderr, kwargs)
 
         finally:
             if logger is not None:
                 logger.close()
 
     def _run(self, task_id, distribution, specification,
-             resultdir, stdout, stderr, **kwargs):
+             resultdir, stdout, stderr, kwargs):
         clog = self.get_logger(**kwargs)
         manager.update_status(task_id, manager.STARTED)
 
@@ -88,7 +88,7 @@ class BuildPackage(Task):
         clog.info('Package %s for %s failed to build, retrying..' % \
                   (specification.location, distribution.name))
 
-    def on_failure(self, task_id, args, kwargs, einfo=None):
+    def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         distribution, specification = args
 
         manager.update_status(task_id, manager.FAILURE)
