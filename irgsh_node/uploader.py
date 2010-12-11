@@ -1,6 +1,10 @@
 import os
 import logging
 import time
+from cStringIO import StringIO
+
+from irgsh.distribution import Distribution
+from irgsh.uploaders import Dput
 
 from irgsh_node.conf import settings
 from irgsh_node.localqueue import Queue
@@ -48,7 +52,8 @@ class Uploader(object):
             # Upload it
             try:
                 if content_type == consts.TYPE_RESULT:
-                    self.send_result(task_id, fname)
+                    distribution = Distribution(**data['distribution'])
+                    self.send_result(task_id, distribution, fname)
                 else:
                     manager.send_log(task_id, fname)
 
@@ -58,9 +63,11 @@ class Uploader(object):
                 # Fail! Reset item so it will be picked up again
                 self.queue.reset(item)
 
-    def send_result(self, task_id, changes):
-        # TODO use irgsh.uploaders to upload changes file
-        pass
+    def send_result(self, task_id, distribution, changes):
+        stdout = stderr = StringIO()
+
+        dput = Dput(distribution)
+        dput.upload(changes, stdout=stdout, stderr=stderr)
 
 def main():
     uploader = Uploader()
