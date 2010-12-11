@@ -99,8 +99,7 @@ class BuildPackage(Task):
                                   'components': distribution.components,
                                   'extra': distribution.extra}}
 
-        self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT,
-                    extra)
+        self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT, extra)
 
     def update_status(self, task_id, status, message=''):
         try:
@@ -111,7 +110,7 @@ class BuildPackage(Task):
     def upload_log(self, task_id, index):
         self.upload(task_id, 'logs/log.%s.gz' % index, consts.TYPE_LOG)
 
-    def upload(self, task_id, path, content_type, **extra):
+    def upload(self, task_id, path, content_type, extra={}):
         data = {}
         data.update(extra)
         data.update({'task_id': task_id,
