@@ -18,6 +18,9 @@ class Uploader(object):
     def stop(self):
         self.stopped = True
 
+    def start(self):
+        self.run()
+
     def run(self):
         self.log.info('Uploader started')
         self.stopped = False
