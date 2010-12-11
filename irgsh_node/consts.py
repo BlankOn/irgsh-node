@@ -1,0 +1,3 @@
+TYPE_RESULT = 0
+TYPE_LOG = 1
+

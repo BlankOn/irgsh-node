@@ -9,8 +9,8 @@ from irgsh.packager import Packager
 from irgsh.builders.pbuilder import Pbuilder
 
 from irgsh_node.conf import settings
-from irgsh_node.models import get_session, UploadQueue, CT_RESULT, CT_LOG
-from irgsh_node import manager
+from irgsh_node.localqueue import Queue
+from irgsh_node import manager, consts
 
 class BuildPackage(Task):
     ignore_result = True
@@ -93,19 +93,16 @@ class BuildPackage(Task):
                   (specification.location, distribution.name))
 
     def upload_package(self, task_id, changes):
-        self.upload(task_id, 'result/%s' % changes, CT_RESULT)
+        self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT)
 
     def upload_log(self, task_id, index):
-        self.upload(task_id, 'logs/log.%s.gz' % index, CT_LOG)
+        self.upload(task_id, 'logs/log.%s.gz' % index, contss.TYPE_LOG)
 
     def upload(self, task_id, path, content_type):
-        queue = UploadQueue()
-        queue.task_id = task_id
-        queue.path = path
-        queue.content_type = content_type
+        data = {'task_id': task_id,
+                'path': path,
+                'content_type': content_type}
 
-        session = get_session()
-        session.add(queue)
-        session.commit()
-
+        queue = Queue(settings.LOCAL_DATABASE)
+        queue.put(data)
 
