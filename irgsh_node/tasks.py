@@ -48,7 +48,7 @@ class BuildPackage(Task):
     def _run(self, task_id, distribution, specification,
              resultdir, stdout, stderr, kwargs):
         clog = self.get_logger(**kwargs)
-        manager.update_status(task_id, manager.STARTED)
+        self.update_status(task_id, manager.STARTED)
 
         # Create and prepare builder (pbuilder)
         pbuilder_path = settings.PBUILDER_PATH
@@ -64,7 +64,7 @@ class BuildPackage(Task):
     def on_success(self, retval, task_id, args, kwargs):
         distribution, specification = args
 
-        manager.update_status(task_id, manager.SUCCESS)
+        self.update_status(task_id, manager.SUCCESS)
         self.upload_package(task_id, args[0], retval)
         self.upload_log(task_id, kwargs['task_retries'])
 
@@ -75,7 +75,7 @@ class BuildPackage(Task):
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
         distribution, specification = args
 
-        manager.update_status(task_id, manager.RETRY)
+        self.update_status(task_id, manager.RETRY)
         self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
@@ -85,7 +85,7 @@ class BuildPackage(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         distribution, specification = args
 
-        manager.update_status(task_id, manager.FAILURE)
+        self.update_status(task_id, manager.FAILURE)
         self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
@@ -101,6 +101,12 @@ class BuildPackage(Task):
 
         self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT,
                     extra)
+
+    def update_status(self, task_id, status, message=''):
+        try:
+            manager.update_status(task_id, status, message)
+        except IOError:
+            pass
 
     def upload_log(self, task_id, index):
         self.upload(task_id, 'logs/log.%s.gz' % index, consts.TYPE_LOG)
