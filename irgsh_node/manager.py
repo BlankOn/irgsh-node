@@ -3,7 +3,7 @@ import urllib2
 from celery.states import STARTED, SUCCESS, RETRY, FAILURE
 
 from .conf import settings
-from .utils import send_message, send_file
+from .utils import send_message
 
 def update_status(task_id, state, message=''):
     host = settings.MANAGER_URL.rstrip('/')
@@ -18,5 +18,5 @@ def send_log(task_id, fname):
     url = '%s/log/%s/' % (host, task_id)
 
     param = {'log': open(fname, 'rb')}
-    send_file(url, param)
+    send_message(url, param)
 
