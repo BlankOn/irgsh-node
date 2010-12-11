@@ -10,11 +10,17 @@ def send_message(url, param=None):
         opts['key_file'] = settings.SSL_KEY
 
     data = None
+    has_file = False
+    headers = {}
     if param is not None:
-        data = urllib.urlencode(param)
-    opener = urllib.URLopener(**opts)
-    opener.open(url, data)
+        has_file = any([type(value) == file for value in param.values()])
+        if has_file:
+            data, headers = multipart_encode(param)
+        else:
+            data = urllib.urlencode(param)
 
-def send_file(url, param=None):
-    pass
+    opener = urllib.URLopener(**opts)
+    for key, value in headers.items():
+        opener.addheader(key, value)
+    opener.open(url, data)
 
