@@ -15,3 +15,6 @@ def send_message(url, param=None):
     opener = urllib.URLopener(**opts)
     opener.open(url, data)
 
+def send_file(url, param=None):
+    pass
+
