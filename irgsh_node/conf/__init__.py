@@ -17,10 +17,10 @@ ENVIRONMENT_VARIABLE = 'IRGSH_NODE_CONFIG'
 CONFIG_MAPPING = {
     'irgsh': {
         'node-name': 'NODE_NAME',
-        'build-path': 'BUILD_PATH',
+        'result-dir': 'RESULT_DIR',
         'server': 'SERVER',
-        'cert': 'SSL_CERT',
-        'cert-key': 'SSL_KEY',
+        'ssl-cert': 'SSL_CERT',
+        'ssl-key': 'SSL_KEY',
         'arch': 'ARCHITECTURE',
         'workers': 'CELERYD_CONCURRENCY',
         'db': 'LOCAL_DATABASE'
@@ -28,12 +28,18 @@ CONFIG_MAPPING = {
     'queue': {
         'host': 'BROKER_HOST',
         'port': 'BROKER_PORT',
+        'username': 'BROKER_USER',
+        'password': 'BROKER_PASS',
+        'vhost': 'BROKER_VHOST'
+    },
+    'pbuilder': {
+        'path': 'PBUILDER_PATH'
     }
 }
 CONFIG_REQUIRED = {
-    'irgsh': ['node-name', 'build-path', 'server',
-              'cert', 'cert-key', 'arch'],
-    'queue': ['host'],
+    'irgsh': ['node-name', 'build-path', 'server', 'arch'],
+    'queue': ['host', 'vhost'],
+    'pbuilder': ['path'],
 }
 CONFIG_TYPE_MAPPER = {
     'BROKER_PORT': int
