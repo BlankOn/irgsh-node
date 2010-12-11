@@ -57,8 +57,10 @@ class Queue(object):
         session.delete(item)
         session.commit()
 
-    def reset(self, item):
+    def reset(self, item, increment=True):
         item.fetched = False
+        if increment:
+            item.counter += 1
 
         session = self.session
         session.add(item)

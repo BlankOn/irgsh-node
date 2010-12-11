@@ -21,6 +21,7 @@ class LocalQueue(Base):
     payload = sa.Column(sa.PickleType, default=None)
 
     fetched = sa.Column(sa.Boolean, default=False)
+    counter = sa.Column(sa.Integer, default=0)
 
 _sessions = {}
 def get_session(uri):
