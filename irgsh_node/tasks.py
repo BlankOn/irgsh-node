@@ -47,6 +47,7 @@ class BuildPackage(Task):
         finally:
             if logger is not None:
                 logger.close()
+                self.upload_log(task_id, retries)
 
     def _run(self, task_id, distribution, specification,
              resultdir, stdout, stderr, kwargs):
@@ -84,7 +85,6 @@ class BuildPackage(Task):
 
         self.update_status(task_id, manager.SUCCESS)
         self.upload_package(task_id, args[0], retval)
-        self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s built successfully' % \
@@ -94,7 +94,6 @@ class BuildPackage(Task):
         distribution, specification = args
 
         self.update_status(task_id, manager.RETRY)
-        self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build, retrying..' % \
@@ -104,7 +103,6 @@ class BuildPackage(Task):
         distribution, specification = args
 
         self.update_status(task_id, manager.FAILURE)
-        self.upload_log(task_id, kwargs['task_retries'])
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build' % \
