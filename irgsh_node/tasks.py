@@ -2,6 +2,7 @@ import os
 import gzip
 from datetime import timedelta
 import tempfile
+import shutil
 
 from celery.task import Task, PeriodicTask
 
