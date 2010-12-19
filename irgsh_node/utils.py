@@ -1,10 +1,10 @@
 import urllib
 
-from poster.encode import multipart_encode
-
 from .conf import settings
 
 def send_message(url, param=None):
+    from poster.encode import multipart_encode
+
     opts = {}
     if settings.SSL_CERT is not None:
         opts['cert_file'] = settings.SSL_CERT
