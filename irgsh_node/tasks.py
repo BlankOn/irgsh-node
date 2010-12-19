@@ -1,6 +1,7 @@
 import os
 import gzip
 from datetime import timedelta
+import tempfile
 
 from celery.task import Task, PeriodicTask
 
@@ -60,7 +61,22 @@ class BuildPackage(Task):
                                                   distribution.name))
         packager = Packager(specification, builder, resultdir,
                             stdout=stdout, stderr=stderr)
-        packager.build()
+        try:
+            work_dir = tempfile.mkdtemp('-irgsh-builder')
+            dsc_dir = os.path.join(work_dir, 'dsc')
+            source_dir = os.path.join(work_dir, 'source')
+            orig_path = None
+
+            packager.export_source(source_dir)
+            orig_path = packager.retrieve_orig()
+            dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
+            dsc_path = os.path.join(dsc_dir, dsc)
+            packager.build_package(dsc_path)
+
+        finally:
+            shutil.rmtree(work_dir)
+            if orig_path is not None:
+                os.unlink(orig_path)
 
     def on_success(self, retval, task_id, args, kwargs):
         distribution, specification = args
