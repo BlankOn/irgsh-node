@@ -54,8 +54,10 @@ class Uploader(object):
                 if content_type == consts.TYPE_RESULT:
                     distribution = Distribution(**data['distribution'])
                     self.send_result(task_id, distribution, fname)
-                else:
+                elif content_type == consts.TYPE_LOG:
                     manager.send_log(task_id, fname)
+                elif content_type == consts.TYPE_CONTROL:
+                    manager.send_control(task_id, fname)
 
                 # Success! Remove item from the queue
                 self.queue.remove(item)

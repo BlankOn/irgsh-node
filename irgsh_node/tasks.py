@@ -9,6 +9,7 @@ from celery.task import Task, PeriodicTask
 from irgsh.error import IrgshException
 from irgsh.packager import Packager
 from irgsh.builders.pbuilder import Pbuilder
+from irgsh.utils import find_changelog
 
 from irgsh_node.conf import settings
 from irgsh_node.localqueue import Queue
@@ -31,7 +32,8 @@ class BuildPackage(Task):
             taskdir = os.path.join(settings.RESULT_DIR, task_id)
             logdir = os.path.join(taskdir, 'logs')
             resultdir = os.path.join(taskdir, 'result')
-            for dirname in [logdir, resultdir]:
+            metadir = os.path.join(taskdir, 'meta')
+            for dirname in [logdir, resultdir, metadir]:
                 if not os.path.exists(dirname):
                     os.makedirs(dirname)
 
@@ -41,7 +43,7 @@ class BuildPackage(Task):
             stdout = stderr = logger
 
             # Execute builder
-            self._run(task_id, distribution, specification,
+            self._run(task_id, taskdir, distribution, specification,
                       resultdir, stdout, stderr, kwargs)
 
         finally:
@@ -49,7 +51,7 @@ class BuildPackage(Task):
                 logger.close()
                 self.upload_log(task_id, retries)
 
-    def _run(self, task_id, distribution, specification,
+    def _run(self, task_id, taskdir, distribution, specification,
              resultdir, stdout, stderr, kwargs):
         clog = self.get_logger(**kwargs)
         self.update_status(task_id, manager.STARTED)
@@ -70,6 +72,8 @@ class BuildPackage(Task):
             orig_path = None
 
             packager.export_source(source_dir)
+            self.upload_control_file(task_id, taskdir, source_dir)
+
             orig_path = packager.retrieve_orig()
             dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
             dsc_path = os.path.join(dsc_dir, dsc)
@@ -107,6 +111,20 @@ class BuildPackage(Task):
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build' % \
                   (specification.location, distribution.name))
+
+    def upload_control_file(self, task_id, taskdir, source_dir):
+        dirname = find_changelog(source_dir)
+        if dirname is None:
+            raise ValueError('Unable to find debian/control')
+
+        control = os.path.join(dirname, 'debian', 'control')
+        if not os.path.exists(control):
+            raise ValueError('Unable to find debian/control')
+
+        path = 'meta/control'
+        shutil.copy(control, os.path.join(taskdir, path)
+
+        self.upload(task_id, path, consts.TYPE_CONTROL)
 
     def upload_package(self, task_id, distribution, changes):
         extra = {'distribution': {'name': distribution.name,
