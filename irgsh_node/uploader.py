@@ -66,10 +66,14 @@ class Uploader(object):
                 self.queue.reset(item)
 
     def send_result(self, task_id, distribution, changes):
+        manager.update_status(task_id, manager.UPLOADING)
+
         stdout = stderr = StringIO()
 
         dput = Dput(distribution)
         dput.upload(changes, stdout=stdout, stderr=stderr)
+
+        manager.update_status(task_id, manager.FINISHED)
 
 def main():
     uploader = Uploader()

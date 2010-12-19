@@ -29,6 +29,8 @@ class BuildPackage(Task):
             retries = kwargs['task_retries']
 
             # Prepare directories
+            self.update_status(task_id, manager.PREPARING)
+
             taskdir = os.path.join(settings.RESULT_DIR, task_id)
             logdir = os.path.join(taskdir, 'logs')
             resultdir = os.path.join(taskdir, 'result')
@@ -54,7 +56,6 @@ class BuildPackage(Task):
     def _run(self, task_id, taskdir, distribution, specification,
              resultdir, stdout, stderr, kwargs):
         clog = self.get_logger(**kwargs)
-        self.update_status(task_id, manager.STARTED)
 
         # Create and prepare builder (pbuilder)
         pbuilder_path = settings.PBUILDER_PATH
@@ -71,10 +72,14 @@ class BuildPackage(Task):
             source_dir = os.path.join(work_dir, 'source')
             orig_path = None
 
+            self.update_status(task_id, manager.DOWNLOADING_SOURCE)
             packager.export_source(source_dir)
             self.upload_control_file(task_id, taskdir, source_dir)
 
+            self.update_status(task_id, manager.DOWNLOADING_ORIG)
             orig_path = packager.retrieve_orig()
+
+            self.update_status(task_id, manager.BUILDING)
             dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
             dsc_path = os.path.join(dsc_dir, dsc)
             packager.build_package(dsc_path)
@@ -87,7 +92,7 @@ class BuildPackage(Task):
     def on_success(self, retval, task_id, args, kwargs):
         distribution, specification = args
 
-        self.update_status(task_id, manager.SUCCESS)
+        self.update_status(task_id, manager.BUILT)
         self.upload_package(task_id, args[0], retval)
 
         clog = self.get_logger(**kwargs)
@@ -97,7 +102,7 @@ class BuildPackage(Task):
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
         distribution, specification = args
 
-        self.update_status(task_id, manager.RETRY)
+        self.update_status(task_id, manager.FAILED)
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build, retrying..' % \
@@ -106,7 +111,7 @@ class BuildPackage(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         distribution, specification = args
 
-        self.update_status(task_id, manager.FAILURE)
+        self.update_status(task_id, manager.FAILED)
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build' % \
@@ -135,9 +140,9 @@ class BuildPackage(Task):
 
         self.upload(task_id, 'result/%s' % changes, consts.TYPE_RESULT, extra)
 
-    def update_status(self, task_id, status, message=''):
+    def update_status(self, task_id, status):
         try:
-            manager.update_status(task_id, status, message)
+            manager.update_status(task_id, status)
         except IOError:
             pass
 
