@@ -48,14 +48,15 @@ CONFIG_TYPE_MAPPER = {
 def init_settings(settings):
     # Define celery queues
     arch = settings.ARCHITECTURE
+    queue = 'builder_%s' % arch
     settings.CELERY_QUEUES = {
-        'builder': {
+        queue: {
             'exchange': 'builder',
             'exchange_type': 'topic',
             'binding_key': 'builder.%s' % arch
         }
     }
-    settings.CELERY_DEFAULT_QUEUE = 'builder'
+    settings.CELERY_DEFAULT_QUEUE = queue
     settings.CELERY_DEFAULT_EXCHANGE = 'builder'
     settings.CELERY_DEFAULT_EXCHANGE_TYPE = 'topic'
     settings.CELERY_DEFAULT_ROUTING_KEY = 'builder.%s' % arch

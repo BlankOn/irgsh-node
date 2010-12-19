@@ -13,6 +13,7 @@ from irgsh_node.localqueue import Queue
 from irgsh_node import manager, consts
 
 class BuildPackage(Task):
+    exchange = 'builder'
     ignore_result = True
 
     max_retries = 5
