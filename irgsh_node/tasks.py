@@ -127,7 +127,7 @@ class BuildPackage(Task):
             raise ValueError('Unable to find debian/control')
 
         path = 'meta/control'
-        shutil.copy(control, os.path.join(taskdir, path)
+        shutil.copy(control, os.path.join(taskdir, path))
 
         self.upload(task_id, path, consts.TYPE_CONTROL)
 
