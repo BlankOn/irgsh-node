@@ -70,6 +70,8 @@ class BuildPackage(Task):
             work_dir = tempfile.mkdtemp('-irgsh-builder')
             dsc_dir = os.path.join(work_dir, 'dsc')
             source_dir = os.path.join(work_dir, 'source')
+            for path in [dsc_dir, source_dir]:
+                os.makedirs(path)
             orig_path = None
 
             self.update_status(task_id, manager.DOWNLOADING_SOURCE)
