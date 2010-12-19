@@ -14,28 +14,29 @@ UPLOADING = 201
 UPLOADED = 202
 FINISHED = 999
 
-HOST = settings.SERVER.rstrip('/')
-
-URL_UPDATE_STATUS = '%s/build/%%(task_id)s/status/' % HOST
-URL_BUILD_LOG = '%s/build/%%(task_id)s/log/' % HOST
-URL_CONTROL = '%s/build/%%(task_id)s/info/' % HOST
+URL_UPDATE_STATUS = '%(host)s/build/%(task_id)s/status/'
+URL_BUILD_LOG = '%(host)s/build/%(task_id)s/log/'
+URL_CONTROL = '%(host)s/build/%(task_id)s/info/'
 
 def update_status(task_id, status):
-    url = URL_UPDATE_STATUS % {'task_id': task_id}
+    host = settings.SERVER.rstrip('/')
+    url = URL_UPDATE_STATUS % {'host': host, 'task_id': task_id}
 
     param = {'status': status,
              'builder': settings.NODE_NAME}
     send_message(url, param)
 
 def send_log(task_id, fname):
-    url = URL_BUILD_LOG % {'task_id': task_id}
+    host = settings.SERVER.rstrip('/')
+    url = URL_BUILD_LOG % {'host': host, 'task_id': task_id}
 
     param = {'log': open(fname, 'rb'),
              'builder': settings.NODE_NAME}
     send_message(url, param)
 
 def send_control(task_id, fname):
-    url = URL_CONTROL % {'task_id': task_id}
+    host = settings.SERVER.rstrip('/')
+    url = URL_CONTROL % {'host': host, 'task_id': task_id}
 
     param = {'control': open(fname, 'rb'),
              'builder': settings.NODE_NAME}
