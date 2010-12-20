@@ -1,16 +1,36 @@
-import urllib
+import urllib2
 
 from .conf import settings
+
+class HTTPSHandler(urllib2.HTTPSHandler):
+    handler_order = urllib2.HTTPSHandler.handler_order - 1
+
+    def __init__(self, debuglevel=0, key_file=None, cert_file=None):
+        super(HTTPSHandler, self).__init__(debuglevel)
+
+        class HTTPSConnection(httplib.HTTPSConnection):
+            def __init__(self, *args, **kwargs):
+                if key_file is not None:
+                    kwargs['key_file'] = key_file
+                if cert_file is not None:
+                    kwargs['cert_file'] = cert_file
+                super(HTTPSConnection, self).__init__(*args, **kwargs)
+
+        self.HTTPSConnection = HTTPSConnection
+
+    def https_open(self, req):
+        return self.do_open(self.HTTPSConnection, req)
 
 def send_message(url, param=None):
     from poster.encode import multipart_encode
 
-    opts = {}
-    if settings.SSL_CERT is not None:
-        opts['cert_file'] = settings.SSL_CERT
-    if settings.SSL_KEY is not None:
-        opts['key_file'] = settings.SSL_KEY
+    # Set custom HTTPS handler, other protocols will use the defaults
+    key_file = getattr(settings, 'SSL_KEY', None)
+    cert_file = getattr(settings, 'SSL_CERT', None)
+    handler = HTTPSHandler(key_file=key_file, cert_file=cert_file)
+    opener = urllib2.build_opener(handler)
 
+    # Construct data and headers
     data = None
     has_file = False
     headers = {}
@@ -21,8 +41,7 @@ def send_message(url, param=None):
         else:
             data = urllib.urlencode(param)
 
-    opener = urllib.URLopener(**opts)
-    for key, value in headers.items():
-        opener.addheader(key, value)
-    opener.open(url, data)
+    # Create request
+    request = urllib2.Request(url, data, headers)
+    return opener.open(request).read()
 
