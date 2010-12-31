@@ -85,7 +85,7 @@ class BuildPackage(Task):
 
             self.update_status(task_id, manager.DOWNLOADING_SOURCE)
             packager.export_source(source_dir)
-            self.upload_control_file(task_id, taskdir, source_dir)
+            # self.upload_control_file(task_id, taskdir, source_dir)
 
             self.check_spec_status(spec_id)
 
