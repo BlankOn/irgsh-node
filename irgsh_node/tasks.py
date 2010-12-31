@@ -15,6 +15,9 @@ from irgsh_node.conf import settings
 from irgsh_node.localqueue import Queue
 from irgsh_node import manager, consts
 
+class TaskCancelled(Exception):
+    pass
+
 class BuildPackage(Task):
     exchange = 'builder'
     ignore_result = True
@@ -27,6 +30,9 @@ class BuildPackage(Task):
         try:
             task_id = kwargs['task_id']
             retries = kwargs['task_retries']
+
+            # Check latest status
+            self.check_spec_status(spec_id)
 
             # Prepare directories
             self.update_status(task_id, manager.PREPARING)
@@ -47,6 +53,9 @@ class BuildPackage(Task):
             # Execute builder
             self._run(spec_id, task_id, taskdir, distribution, specification,
                       resultdir, stdout, stderr, kwargs)
+
+        except TaskCancelled, e:
+            self.update_status(task_id, manager.CANCELLED)
 
         finally:
             if logger is not None:
@@ -78,8 +87,12 @@ class BuildPackage(Task):
             packager.export_source(source_dir)
             self.upload_control_file(task_id, taskdir, source_dir)
 
+            self.check_spec_status(spec_id)
+
             self.update_status(task_id, manager.DOWNLOADING_ORIG)
             orig_path = packager.retrieve_orig()
+
+            self.check_spec_status(spec_id)
 
             self.update_status(task_id, manager.BUILDING)
             dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
@@ -160,4 +173,10 @@ class BuildPackage(Task):
 
         queue = Queue(settings.LOCAL_DATABASE)
         queue.put(data)
+
+    def check_spec_status(self, spec_id):
+        res = manager.get_spec_status(spec_id)
+        if res['code'] < 0:
+            raise TaskCancelled()
+        return True
 

@@ -4,6 +4,7 @@ import json
 from .conf import settings
 from .utils import send_message
 
+CANCELLED = -2
 FAILED = -1
 WAITING = 0
 PREPARING = 100
