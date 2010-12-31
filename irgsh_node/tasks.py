@@ -22,7 +22,7 @@ class BuildPackage(Task):
     max_retries = 5
     default_retry_delay = 5 * 60
 
-    def run(self, distribution, specification, **kwargs):
+    def run(self, spec_id, specification, distribution, **kwargs):
         logger = None
         try:
             task_id = kwargs['task_id']
@@ -45,7 +45,7 @@ class BuildPackage(Task):
             stdout = stderr = logger
 
             # Execute builder
-            self._run(task_id, taskdir, distribution, specification,
+            self._run(spec_id, task_id, taskdir, distribution, specification,
                       resultdir, stdout, stderr, kwargs)
 
         finally:
@@ -53,7 +53,7 @@ class BuildPackage(Task):
                 logger.close()
                 self.upload_log(task_id, retries)
 
-    def _run(self, task_id, taskdir, distribution, specification,
+    def _run(self, spec_id, task_id, taskdir, distribution, specification,
              resultdir, stdout, stderr, kwargs):
         clog = self.get_logger(**kwargs)
 
