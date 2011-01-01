@@ -47,7 +47,7 @@ def send_control(task_id, fname):
 
 def get_spec_status(spec_id):
     host = settings.SERVER.rstrip('/')
-    url = URL_GET_STATUS = {'host': host, 'spec_id': spec_id}
+    url = URL_GET_STATUS % {'host': host, 'spec_id': spec_id}
 
     return json.loads(send_message(url))
 
