@@ -105,7 +105,7 @@ class BuildPackage(Task):
                 os.unlink(orig_path)
 
     def on_success(self, retval, task_id, args, kwargs):
-        distribution, specification = args
+        spec_id, specification, distribution = args
 
         self.update_status(task_id, manager.BUILT)
         self.upload_package(task_id, args[0], retval)
@@ -115,7 +115,7 @@ class BuildPackage(Task):
                   (specification.location, distribution.name))
 
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
-        distribution, specification = args
+        spec_id, specification, distribution = args
 
         self.update_status(task_id, manager.FAILED)
 
@@ -124,7 +124,7 @@ class BuildPackage(Task):
                   (specification.location, distribution.name))
 
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
-        distribution, specification = args
+        spec_id, specification, distribution = args
 
         self.update_status(task_id, manager.FAILED)
 
