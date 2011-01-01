@@ -108,7 +108,7 @@ class BuildPackage(Task):
         spec_id, specification, distribution = args
 
         self.update_status(task_id, manager.BUILT)
-        self.upload_package(task_id, args[0], retval)
+        self.upload_package(task_id, distribution, retval)
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s built successfully' % \
