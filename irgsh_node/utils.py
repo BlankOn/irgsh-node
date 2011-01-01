@@ -25,12 +25,15 @@ class HTTPSHandler(urllib2.HTTPSHandler):
 
 def send_message(url, param=None):
     from poster.encode import multipart_encode
+    from poster.streaminghttp import register_openers
 
     # Set custom HTTPS handler, other protocols will use the defaults
     key_file = getattr(settings, 'SSL_KEY', None)
     cert_file = getattr(settings, 'SSL_CERT', None)
     handler = HTTPSHandler(key_file=key_file, cert_file=cert_file)
-    opener = urllib2.build_opener(handler)
+
+    opener = register_openers()
+    opener.add_handler(handler)
 
     # Construct data and headers
     data = None
