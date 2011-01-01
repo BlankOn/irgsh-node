@@ -1,4 +1,6 @@
 import urllib2
+import urllib
+import httplib
 
 from .conf import settings
 
@@ -6,7 +8,7 @@ class HTTPSHandler(urllib2.HTTPSHandler):
     handler_order = urllib2.HTTPSHandler.handler_order - 1
 
     def __init__(self, debuglevel=0, key_file=None, cert_file=None):
-        super(HTTPSHandler, self).__init__(debuglevel)
+        urllib2.HTTPSHandler.__init__(self, debuglevel)
 
         class HTTPSConnection(httplib.HTTPSConnection):
             def __init__(self, *args, **kwargs):
@@ -14,7 +16,7 @@ class HTTPSHandler(urllib2.HTTPSHandler):
                     kwargs['key_file'] = key_file
                 if cert_file is not None:
                     kwargs['cert_file'] = cert_file
-                super(HTTPSConnection, self).__init__(*args, **kwargs)
+                httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 
         self.HTTPSConnection = HTTPSConnection
 
