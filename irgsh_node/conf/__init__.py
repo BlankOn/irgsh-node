@@ -6,6 +6,7 @@ Licensed under BSD License.
 """
 
 import os
+from glob import glob
 from ConfigParser import SafeConfigParser, NoOptionError
 
 from importlib import import_module
@@ -64,14 +65,20 @@ def init_settings(settings):
     imports = getattr(settings, 'CELERY_IMPORTS', ())
     settings.CELERY_IMPORTS = ('irgsh_node.tasks',) + imports
 
-def load_config(config_file):
-    # Check file existance
-    if not os.path.exists(config_file):
-        raise IOError, 'File not found'
-
+def load_config(config_files):
     # Load config
     cp = SafeConfigParser()
-    cp.read(config_file)
+    found = False
+    for config_file in config_files:
+        try:
+            if os.path.exists(config_file):
+                cp.read(config_file)
+                found = True
+        except TypeError:
+            pass
+
+    if not found:
+        raise ValueError
 
     # Load config values
     config = {}
@@ -92,25 +99,17 @@ def load_config(config_file):
     return config
 
 class Settings(object):
-    def __init__(self, config_file):
+    def __init__(self, config_files):
         # Load default settings
         for setting in dir(global_settings):
             if setting == setting.upper():
                 setattr(self, setting, getattr(global_settings, setting))
 
         # Load configuration_file
-        if not os.path.exists(config_file):
-            raise IOError("Could not load configuration file '%s'" % \
-                          config_file)
-
         try:
-            config = load_config(config_file)
+            config = load_config(config_files)
         except ValueError, e:
-            raise ValueError, "Unable to read configuration file '%s': %s" % \
-                              (config_file, e)
-        except IOError, e:
-            raise IOError, "Unable to read configuration file '%s': %s" % \
-                           (config_file, e)
+            raise ValueError, "Unable to read configuration files"
 
         for key, value in config.items():
             setattr(self, key, value)
@@ -128,16 +127,20 @@ class LazySettings(object):
         self._settings = None
 
     def _configure(self):
+        config_files = []
+
+        config_files = ['irgsh-node.conf',
+                        '/etc/irgsh/node/irgsh-node.conf']
+        config_files.append(sorted(
+                        glob('/etc/irgsh/node/irgsh-node.conf.d/*.conf')))
+
         try:
             config_file = os.environ[ENVIRONMENT_VARIABLE]
-            if not config_file:
-                raise KeyError
+            config_files.append(config_file)
         except KeyError:
-            raise ImportError('Settings cannot be imported, because ' \
-                              'environment variable %s is undefined' % 
-                              ENVIRONMENT_VARIABLE)
+            pass
 
-        self._settings = Settings(config_file)
+        self._settings = Settings(config_files)
         self._configured = True
 
     def __getattr__(self, name):
