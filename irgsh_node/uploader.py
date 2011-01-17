@@ -63,8 +63,6 @@ class Uploader(object):
                     self.send_result(task_id, distribution, fname)
                 elif content_type == consts.TYPE_LOG:
                     manager.send_log(task_id, fname)
-                elif content_type == consts.TYPE_CONTROL:
-                    manager.send_control(task_id, fname)
 
                 # Success! Remove item from the queue
                 self.queue.remove(item)

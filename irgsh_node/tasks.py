@@ -85,7 +85,6 @@ class BuildPackage(Task):
 
             self.update_status(task_id, manager.DOWNLOADING_SOURCE)
             packager.export_source(source_dir)
-            # self.upload_control_file(task_id, taskdir, source_dir)
 
             self.check_spec_status(spec_id)
 
@@ -131,20 +130,6 @@ class BuildPackage(Task):
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s failed to build' % \
                   (specification.location, distribution.name))
-
-    def upload_control_file(self, task_id, taskdir, source_dir):
-        dirname = find_changelog(source_dir)
-        if dirname is None:
-            raise ValueError('Unable to find debian/control')
-
-        control = os.path.join(dirname, 'debian', 'control')
-        if not os.path.exists(control):
-            raise ValueError('Unable to find debian/control')
-
-        path = 'meta/control'
-        shutil.copy(control, os.path.join(taskdir, path))
-
-        self.upload(task_id, path, consts.TYPE_CONTROL)
 
     def upload_package(self, task_id, distribution, changes):
         extra = {'distribution': {'name': distribution.name,
