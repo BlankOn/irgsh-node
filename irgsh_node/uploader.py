@@ -88,7 +88,10 @@ class Uploader(object):
 
         stdout = stderr = StringIO()
 
-        dput = Dput(distribution)
+        opts = {'user': settings.UPLOAD_USER,
+                'host': settings.UPLOAD_HOST,
+                'path': settings.UPLOAD_PATH}
+        dput = Dput(distribution, **opts)
         dput.upload(changes, stdout=stdout, stderr=stderr)
 
         manager.update_status(task_id, manager.UPLOADED)
