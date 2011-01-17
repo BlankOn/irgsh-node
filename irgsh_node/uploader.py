@@ -53,7 +53,7 @@ class Uploader(object):
             taskdir = os.path.join(settings.RESULT_DIR, task_id)
             fname = os.path.join(taskdir, path)
             if not os.path.exists(fname):
-                self.log.warning('File not found: %s' % fname)
+                self.log.error('File not found: %s' % fname)
                 continue
 
             # Upload it
