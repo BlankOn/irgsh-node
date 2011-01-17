@@ -12,10 +12,9 @@ from irgsh_node.localqueue import Queue
 from irgsh_node import manager, consts
 
 class Uploader(object):
-    def __init__(self, delay=60):
+    def __init__(self):
         super(Uploader, self).__init__()
 
-        self.delay = delay
         self.stopped = True
         self.log = logging.getLogger('irgsh_node.uploader')
         self.queue = Queue(settings.LOCAL_DATABASE)
@@ -27,16 +26,23 @@ class Uploader(object):
         self.run()
 
     def run(self):
+        delay = 0.1
+
         self.log.info('Uploader started')
         self.stopped = False
         while not self.stopped:
-            self.log.info('Uploading..')
-            time.sleep(self.delay)
+            time.sleep(delay)
 
             # Get last item in the upload queue
             item = self.queue.get()
             if item is None:
+                delay = delay * 2
+                if delay > 5:
+                    delay = 5
                 continue
+            delay = 0.1
+
+            self.log.debug('Got a new item to upload, id=%s' % item.id)
 
             data = item.payload
             content_type = data['content_type']
