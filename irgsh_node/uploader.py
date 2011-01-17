@@ -2,6 +2,7 @@ import os
 import logging
 import time
 from cStringIO import StringIO
+from urllib2 import HTTPError
 
 from irgsh.distribution import Distribution
 from irgsh.uploaders.dput import Dput
@@ -61,9 +62,18 @@ class Uploader(object):
 
                 # Success! Remove item from the queue
                 self.queue.remove(item)
-            except IOError:
-                # Fail! Reset item so it will be picked up again
-                self.queue.reset(item)
+                self.log.debug('Data uploaded')
+            except IOError, e:
+                reset = True
+                if isinstance(e, HTTPError):
+                    if e.code == 404:
+                        self.log.error('Task is not registered')
+                        reset = False
+
+                if reset:
+                    # Fail! Reset item so it will be picked up again
+                    self.queue.reset(item)
+                    self.log.error('Failed to upload, send item back to queue: %s' % e)
 
     def send_result(self, task_id, distribution, changes):
         manager.update_status(task_id, manager.UPLOADING)
