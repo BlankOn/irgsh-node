@@ -27,6 +27,7 @@ class BuildPackage(Task):
 
     def run(self, spec_id, specification, distribution, **kwargs):
         logger = None
+
         try:
             task_id = kwargs['task_id']
             retries = kwargs['task_retries']
@@ -96,8 +97,9 @@ class BuildPackage(Task):
             self.update_status(task_id, manager.BUILDING)
             dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
             dsc_path = os.path.join(dsc_dir, dsc)
-            packager.build_package(dsc_path)
+            changes = packager.build_package(dsc_path)
 
+            self.upload_package(task_id, distribution, changes)
         finally:
             shutil.rmtree(work_dir)
             if orig_path is not None:
@@ -107,7 +109,6 @@ class BuildPackage(Task):
         spec_id, specification, distribution = args
 
         self.update_status(task_id, manager.BUILT)
-        self.upload_package(task_id, distribution, retval)
 
         clog = self.get_logger(**kwargs)
         clog.info('Package %s for %s built successfully' % \
