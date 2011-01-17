@@ -35,12 +35,18 @@ CONFIG_MAPPING = {
     },
     'pbuilder': {
         'path': 'PBUILDER_PATH'
+    },
+    'upload': {
+        'path': 'UPLOAD_PATH',
+        'host': 'UPLOAD_HOST',
+        'user': 'UPLOAD_USER',
     }
 }
 CONFIG_REQUIRED = {
     'irgsh': ['node-name', 'build-path', 'server', 'arch'],
     'queue': ['host', 'vhost'],
     'pbuilder': ['path'],
+    'upload': ['user', 'host', 'path'],
 }
 CONFIG_TYPE_MAPPER = {
     'BROKER_PORT': int
