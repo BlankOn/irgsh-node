@@ -63,6 +63,10 @@ class Uploader(object):
                     self.send_result(task_id, distribution, fname)
                 elif content_type == consts.TYPE_LOG:
                     manager.send_log(task_id, fname)
+                else:
+                    self.queue.remove(item)
+                    self.log.error('Unrecognized content type: %s' % content_type)
+                    continue
 
                 # Success! Remove item from the queue
                 self.queue.remove(item)
