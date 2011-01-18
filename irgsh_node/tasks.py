@@ -12,7 +12,6 @@ from irgsh.builders.pbuilder import Pbuilder
 from irgsh.utils import find_changelog
 
 from irgsh_node.conf import settings
-from irgsh_node.localqueue import Queue
 from irgsh_node import manager, consts
 
 class TaskCancelled(Exception):
@@ -151,6 +150,8 @@ class BuildPackage(Task):
         self.upload(task_id, 'logs/log.%s.gz' % index, consts.TYPE_LOG)
 
     def upload(self, task_id, path, content_type, extra={}):
+        from irgsh_node.localqueue import Queue
+
         data = {}
         data.update(extra)
         data.update({'task_id': task_id,
