@@ -15,9 +15,9 @@ BUILT = 104
 UPLOADING = 201
 FINISHED = 999
 
-URL_UPDATE_STATUS = '%(host)s/build/%(task_id)s/status/'
-URL_BUILD_LOG = '%(host)s/build/%(task_id)s/log/'
-URL_CONTROL = '%(host)s/build/%(task_id)s/info/'
+URL_UPDATE_STATUS = '%(host)s/task/%(task_id)s/status/'
+URL_BUILD_LOG = '%(host)s/task/%(task_id)s/log/'
+URL_CONTROL = '%(host)s/task/%(task_id)s/info/'
 URL_GET_STATUS = '%(host)s/build/%(spec_id)s/status/'
 
 def update_status(task_id, status):
