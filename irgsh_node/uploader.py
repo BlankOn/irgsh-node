@@ -92,7 +92,7 @@ class Uploader(object):
         dput = Dput(distribution, **opts)
         dput.upload(changes)
 
-        manager.update_status(task_id, manager.UPLOADED)
+        manager.update_status(task_id, manager.FINISHED)
 
 def main():
     uploader = Uploader()
