@@ -1,10 +1,12 @@
 import os
 import logging
 import time
+import tempfile
 from cStringIO import StringIO
 from urllib2 import HTTPError
 
 from irgsh.distribution import Distribution
+from irgsh.uploaders import UploadFailedError
 from irgsh.uploaders.dput import Dput
 
 from irgsh_node.conf import settings
@@ -57,6 +59,7 @@ class Uploader(object):
                 continue
 
             # Upload it
+            reset = False
             try:
                 if content_type == consts.TYPE_RESULT:
                     distribution = Distribution(**data['distribution'])
@@ -71,6 +74,14 @@ class Uploader(object):
                 # Success! Remove item from the queue
                 self.queue.remove(item)
                 self.log.debug('Data uploaded')
+
+            except UploadFailedError, e:
+                self.log.error(str(e))
+                # TODO: add task log remotely
+                # manager.send_log(task_id, 'Failed to upload result: (%s) %s' % \
+                #                  (e.code, e.log))
+                manager.update_status(task_id, manager.FAILED)
+
             except IOError, e:
                 reset = True
                 if isinstance(e, HTTPError):
@@ -78,19 +89,35 @@ class Uploader(object):
                         self.log.error('Task is not registered')
                         reset = False
 
-                if reset:
-                    # Fail! Reset item so it will be picked up again
-                    self.queue.reset(item)
-                    self.log.error('Failed to upload, send item back to queue: %s' % e)
+            if reset:
+                # Fail! Reset item so it will be picked up again
+                self.queue.reset(item)
+                self.log.error('Failed to upload, send item back to queue: %s' % e)
 
     def send_result(self, task_id, distribution, changes):
         manager.update_status(task_id, manager.UPLOADING)
 
-        opts = {'user': settings.UPLOAD_USER,
-                'host': settings.UPLOAD_HOST,
-                'path': settings.UPLOAD_PATH}
-        dput = Dput(distribution, **opts)
-        dput.upload(changes)
+        try:
+            fd, log = tempfile.mkstemp('-irgsh-upload')
+            flog = open(log, 'wb')
+            stdout = stderr = flog
+            
+            opts = {'user': settings.UPLOAD_USER,
+                    'host': settings.UPLOAD_HOST,
+                    'path': settings.UPLOAD_PATH}
+            dput = Dput(distribution, **opts)
+            dput.upload(changes, stdout, stderr)
+
+            flog.close()
+
+        except UploadFailedError, e:
+            flog.close()
+
+            e.log = open(log).read()
+            raise e
+
+        finally:
+            os.unlink(log)
 
         manager.update_status(task_id, manager.FINISHED)
 
