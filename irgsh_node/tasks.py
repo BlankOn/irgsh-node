@@ -110,8 +110,7 @@ class BuildPackage(Task):
         self.update_status(task_id, manager.BUILT)
 
         clog = self.get_logger(**kwargs)
-        clog.info('Package %s for %s built successfully' % \
-                  (specification.location, distribution.name))
+        clog.info('Package built successfully')
 
     def on_retry(self, exc, task_id, args, kwargs, einfo=None):
         spec_id, specification, distribution = args
@@ -119,8 +118,7 @@ class BuildPackage(Task):
         self.update_status(task_id, manager.FAILED)
 
         clog = self.get_logger(**kwargs)
-        clog.info('Package %s for %s failed to build, retrying..' % \
-                  (specification.location, distribution.name))
+        clog.info('Package failed to build, retrying..')
 
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         spec_id, specification, distribution = args
@@ -128,8 +126,7 @@ class BuildPackage(Task):
         self.update_status(task_id, manager.FAILED)
 
         clog = self.get_logger(**kwargs)
-        clog.info('Package %s for %s failed to build' % \
-                  (specification.location, distribution.name))
+        clog.info('Package failed to build')
 
     def upload_package(self, task_id, distribution, changes):
         extra = {'distribution': {'name': distribution.name,
