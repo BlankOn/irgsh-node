@@ -6,10 +6,8 @@ import shutil
 
 from celery.task import Task, PeriodicTask
 
-from irgsh.error import IrgshException
 from irgsh.packager import Packager
 from irgsh.builders.pbuilder import Pbuilder
-from irgsh.utils import find_changelog
 
 from irgsh_node.conf import settings
 from irgsh_node import manager, consts
@@ -42,13 +40,12 @@ class BuildPackage(Task):
                     os.makedirs(dirname)
 
             # Prepare logger
-            logname = os.path.join(logdir, 'log.%d.gz' % retries)
-            logger = gzip.GzipFile(logname, 'wb')
-            stdout = stderr = logger
+            logname = os.path.join(logdir, 'build.log')
+            logger = open(logname, 'wb')
 
             # Execute builder
             self._run(spec_id, task_id, taskdir, distribution, specification,
-                      resultdir, stdout, stderr, kwargs)
+                      resultdir, logger, kwargs)
 
         except TaskCancelled, e:
             self.update_status(task_id, manager.CANCELLED)
@@ -56,10 +53,20 @@ class BuildPackage(Task):
         finally:
             if logger is not None:
                 logger.close()
-                self.upload_log(task_id, retries)
+
+                logger = open(logname, 'rb')
+                gzlogname = os.path.join(logdir, 'build.log.gz')
+                gz = gzip.open(gzlogname, 'wb')
+                gz.write(logger.read())
+                gz.close()
+                logger.close()
+
+                os.unlink(logname)
+
+                self.upload_log(task_id)
 
     def _run(self, spec_id, task_id, taskdir, distribution, specification,
-             resultdir, stdout, stderr, kwargs):
+             resultdir, logger, kwargs):
         clog = self.get_logger(**kwargs)
 
         # Create and prepare builder (pbuilder)
@@ -67,38 +74,14 @@ class BuildPackage(Task):
         builder = Pbuilder(distribution, pbuilder_path)
 
         # Build package
-        clog.info('Building package %s for %s' % (specification.location,
+        clog.info('Building package %s for %s' % (specification.source,
                                                   distribution.name))
-        packager = Packager(specification, builder, resultdir,
-                            stdout=stdout, stderr=stderr)
-        try:
-            work_dir = tempfile.mkdtemp('-irgsh-builder')
-            dsc_dir = os.path.join(work_dir, 'dsc')
-            source_dir = os.path.join(work_dir, 'source')
-            for path in [dsc_dir, source_dir]:
-                os.makedirs(path)
-            orig_path = None
 
-            self.update_status(task_id, manager.DOWNLOADING_SOURCE)
-            packager.export_source(source_dir)
+        self.update_status(task_id, manager.BUILDING)
+        packager = Packager(specification, builder)
+        changes = packager.build(resultdir, logger)
 
-            self.check_spec_status(spec_id)
-
-            self.update_status(task_id, manager.DOWNLOADING_ORIG)
-            orig_path = packager.retrieve_orig()
-
-            self.check_spec_status(spec_id)
-
-            self.update_status(task_id, manager.BUILDING)
-            dsc = packager.generate_dsc(dsc_dir, source_dir, orig_path)
-            dsc_path = os.path.join(dsc_dir, dsc)
-            changes = packager.build_package(dsc_path)
-
-            self.upload_package(task_id, distribution, changes)
-        finally:
-            shutil.rmtree(work_dir)
-            if orig_path is not None:
-                os.unlink(orig_path)
+        self.upload_package(task_id, distribution, changes)
 
     def on_success(self, retval, task_id, args, kwargs):
         spec_id, specification, distribution = args
@@ -131,8 +114,8 @@ class BuildPackage(Task):
         except IOError:
             pass
 
-    def upload_log(self, task_id, index):
-        self.upload(task_id, 'logs/log.%s.gz' % index, consts.TYPE_LOG)
+    def upload_log(self, task_id):
+        self.upload(task_id, 'logs/build.log.gz', consts.TYPE_LOG)
 
     def upload(self, task_id, path, content_type, extra={}):
         from irgsh_node.localqueue import Queue

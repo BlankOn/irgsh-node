@@ -5,7 +5,7 @@ import tempfile
 from cStringIO import StringIO
 from urllib2 import HTTPError
 
-from irgsh.distribution import Distribution
+from irgsh.data import Distribution
 from irgsh.uploaders import UploadFailedError
 from irgsh.uploaders.dput import Dput
 
