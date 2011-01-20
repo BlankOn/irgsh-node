@@ -21,15 +21,11 @@ class BuildPackage(Task):
     exchange = 'builder'
     ignore_result = True
 
-    max_retries = 5
-    default_retry_delay = 5 * 60
-
     def run(self, spec_id, specification, distribution, **kwargs):
         logger = None
 
         try:
             task_id = kwargs['task_id']
-            retries = kwargs['task_retries']
 
             # Check latest status
             self.check_spec_status(spec_id)
@@ -111,14 +107,6 @@ class BuildPackage(Task):
 
         clog = self.get_logger(**kwargs)
         clog.info('Package built successfully')
-
-    def on_retry(self, exc, task_id, args, kwargs, einfo=None):
-        spec_id, specification, distribution = args
-
-        self.update_status(task_id, manager.FAILED)
-
-        clog = self.get_logger(**kwargs)
-        clog.info('Package failed to build, retrying..')
 
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         spec_id, specification, distribution = args
