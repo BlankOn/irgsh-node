@@ -17,6 +17,7 @@ FINISHED = 999
 
 URL_UPDATE_STATUS = '%(host)s/task/%(task_id)s/status/'
 URL_BUILD_LOG = '%(host)s/task/%(task_id)s/log/'
+URL_CHANGES = '%(host)s/task/%(task_id)s/changes/'
 URL_CONTROL = '%(host)s/task/%(task_id)s/info/'
 URL_GET_STATUS = '%(host)s/build/%(spec_id)s/status/'
 
@@ -33,6 +34,14 @@ def send_log(task_id, fname):
     url = URL_BUILD_LOG % {'host': host, 'task_id': task_id}
 
     param = {'log': open(fname, 'rb'),
+             'builder': settings.NODE_NAME}
+    send_message(url, param)
+
+def send_changes(task_id, fname):
+    host = settings.SERVER.rstrip('/')
+    url = URL_CHANGES % {'host': host, 'task_id': task_id}
+
+    param = {'changes': open(fname, 'rb'),
              'builder': settings.NODE_NAME}
     send_message(url, param)
 

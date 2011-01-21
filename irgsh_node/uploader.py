@@ -63,6 +63,7 @@ class Uploader(object):
             try:
                 if content_type == consts.TYPE_RESULT:
                     distribution = Distribution(**data['distribution'])
+                    manager.send_changes(task_id, fname)
                     self.send_result(task_id, distribution, fname)
                 elif content_type == consts.TYPE_LOG:
                     manager.send_log(task_id, fname)
