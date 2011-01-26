@@ -20,6 +20,7 @@ URL_BUILD_LOG = '%(host)s/task/%(task_id)s/log/'
 URL_CHANGES = '%(host)s/task/%(task_id)s/changes/'
 URL_CONTROL = '%(host)s/task/%(task_id)s/info/'
 URL_GET_STATUS = '%(host)s/build/%(spec_id)s/status/'
+URL_PING = '%(host)s/builder/%(name)s/ping/'
 
 def update_status(task_id, status):
     host = settings.SERVER.rstrip('/')
@@ -58,4 +59,14 @@ def get_spec_status(spec_id):
     url = URL_GET_STATUS % {'host': host, 'spec_id': spec_id}
 
     return json.loads(send_message(url))
+
+def ping():
+    host = settings.SERVER.rstrip('/')
+    name = settings.NODE_NAME
+    url = URL_PING % {'host': host, 'name': name}
+
+    status = 'idle' # None # TODO: idle, building #task_id
+    param = {'status': status,
+             'builder': settings.NODE_NAME}
+    send_message(url, param)
 

@@ -69,7 +69,8 @@ def init_settings(settings):
     settings.CELERY_DEFAULT_ROUTING_KEY = 'builder.%s' % arch
 
     imports = getattr(settings, 'CELERY_IMPORTS', ())
-    settings.CELERY_IMPORTS = ('irgsh_node.tasks',) + imports
+    task_modules = ('irgsh_node.tasks', 'irgsh_node.control')
+    settings.CELERY_IMPORTS = task_modules + imports
 
 def load_config(config_files):
     # Load config
