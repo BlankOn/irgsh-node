@@ -18,6 +18,6 @@ setup(name='irgsh-node',
       entry_points={'console_scripts': ['irgsh-node = irgsh_node.main:main',
                                         'irgsh-celery = irgsh_node.main_celery:main',
                                         'irgsh-uploader = irgsh_node.uploader:main']},
-      install_requires=['setuptools', 'python-debian', 'celery', 'amqplib',
+      install_requires=['setuptools', 'python-debian', 'celery',
                         'sqlalchemy', 'poster'],
      )
