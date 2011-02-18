@@ -102,10 +102,11 @@ class Uploader(object):
             fd, log = tempfile.mkstemp('-irgsh-upload')
             flog = open(log, 'wb')
             stdout = stderr = flog
-            
+
+            path = 'incoming/%s/' % task_id
             opts = {'user': settings.UPLOAD_USER,
                     'host': settings.UPLOAD_HOST,
-                    'path': settings.UPLOAD_PATH}
+                    'path': path}
             dput = Dput(distribution, **opts)
             dput.upload(changes, stdout, stderr)
 

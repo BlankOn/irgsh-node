@@ -37,7 +37,6 @@ CONFIG_MAPPING = {
         'path': 'PBUILDER_PATH'
     },
     'upload': {
-        'path': 'UPLOAD_PATH',
         'host': 'UPLOAD_HOST',
         'user': 'UPLOAD_USER',
     }
