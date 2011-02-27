@@ -1,5 +1,7 @@
 import os
 import logging
+import signal
+import sys
 import time
 import tempfile
 from cStringIO import StringIO
@@ -21,11 +23,26 @@ class Uploader(object):
         self.log = logging.getLogger('irgsh_node.uploader')
         self.queue = Queue(settings.LOCAL_DATABASE)
 
+        self.force_stop = False
+
     def stop(self):
         self.stopped = True
 
     def start(self):
+        signal.signal(signal.SIGINT, self.sigint_handler)
+
+        self.force_stop = False
         self.run()
+
+    def sigint_handler(self, sig, frame):
+        self.stopped = True
+        if not self.force_stop:
+            self.log.info('Ctrl+C was pressed, finishing current job..')
+            self.log.info('Press Ctrl+C again to force stop the uploader.')
+            self.force_stop = True
+        else:
+            self.log.info('Stopping the uploader by force.')
+            sys.exit(1)
 
     def run(self):
         delay = 0.1
@@ -129,11 +146,6 @@ def main():
 
     # TODO
     # - add ability to launch multiple uploaders
-    # - catch SIGTERM/Ctrl+C and perform warm shutdown
-    #   (tell all workers to finish ongoing upload but do not proceed
-    #    to the next item in the queue)
-    # - if SIGTERM is received again, force all workers to stop
-
 
 if __name__ == '__main__':
     main()
