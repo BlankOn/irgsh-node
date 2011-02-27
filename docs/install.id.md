@@ -19,11 +19,13 @@ Kebutuhan
 2. dput
 3. pbuilder
 4. git (untuk mengambil kode sumber)
+5. dpkg-dev
+6. fakeroot
 
 Bagi pengguna sistem operasi berbasis Debian, jalankan perintah berikut
 untuk memasang kebutuhan di atas.
 
-    $ sudo apt-get install python dput pbuilder git-core
+    $ sudo apt-get install python dput pbuilder git-core dpkg-dev fakeroot
 
 
 Instalasi
