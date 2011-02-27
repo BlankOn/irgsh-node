@@ -6,11 +6,12 @@ def get_version():
     import irgsh_node
     return irgsh_node.__version__
 
-packages = ['irgsh_node', 'irgsh_node.conf']
+packages = ['irgsh_node', 'irgsh_node.conf', 'irgsh_node.localqueue',
+            'irgsh_node.amqplibssl', 'irgsh_node.amqplibssl.client_0_8']
 
 setup(name='irgsh-node', 
       version=get_version(),
-      description='irgsh builder',
+      description='Irgsh Package Builder',
       url='http://irgsh.blankonlinux.or.id',
       packages=packages,
       maintainer='BlankOn Developers',
