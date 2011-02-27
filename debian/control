@@ -1,0 +1,13 @@
+Source: irgsh-node
+Section: python
+Priority: optional
+Maintainer: BlankOn Developers <blankon-dev@googlegroups.com>
+Build-Depends: debhelper (>= 5.0.37.2), python (>= 2.5), python-setuptools
+
+Package: irgsh-node
+Architecture: all
+Depends: ${python:Depends}, python-irgsh, python-debian, python-sqlalchemy, python-poster, python-celery (<< 2.2), dput, pbuilder, bzr
+Conflicts: python-celery (<< 2.1)
+Description: Irgsh Python Library
+ This package contains common libraries for Irgsh tools.
+
