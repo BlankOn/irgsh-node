@@ -1,0 +1,27 @@
+diff --git a/irgsh_node/conf/__init__.py b/irgsh_node/conf/__init__.py
+index 80a2234..d782bf8 100644
+--- a/irgsh_node/conf/__init__.py
++++ b/irgsh_node/conf/__init__.py
+@@ -135,16 +135,16 @@ class LazySettings(object):
+     def _configure(self):
+         config_files = []
+ 
+-        config_files = ['irgsh-node.conf',
++        config_files = [#'irgsh-node.conf',
+                         '/etc/irgsh/node/irgsh-node.conf']
+         config_files.append(sorted(
+                         glob('/etc/irgsh/node/irgsh-node.conf.d/*.conf')))
+ 
+-        try:
+-            config_file = os.environ[ENVIRONMENT_VARIABLE]
+-            config_files.append(config_file)
+-        except KeyError:
+-            pass
++        # try:
++        #     config_file = os.environ[ENVIRONMENT_VARIABLE]
++        #     config_files.append(config_file)
++        # except KeyError:
++        #     pass
+ 
+         self._settings = Settings(config_files)
+         self._configured = True
