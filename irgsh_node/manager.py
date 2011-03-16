@@ -60,7 +60,7 @@ def claim_task(task_id):
     url = URL_CLAIM % {'host': host, 'task_id': task_id}
 
     param = {'builder': settings.NODE_NAME}
-    send_message(url, param)
+    return json.loads(send_message(url, param))
 
 def get_spec_status(spec_id):
     host = settings.SERVER.rstrip('/')
