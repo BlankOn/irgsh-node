@@ -23,7 +23,7 @@ class BuildPackage(Task):
         logger = None
 
         try:
-            task_id = kwargs['task_id']
+            task_id = self.request.id
 
             # Check latest status
             self.check_spec_status(spec_id)
