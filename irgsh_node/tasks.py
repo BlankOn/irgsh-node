@@ -28,6 +28,9 @@ class BuildPackage(Task):
             # Check latest status
             self.check_spec_status(spec_id)
 
+            # Try to claim task
+            self.claim(task_id)
+
             # Prepare directories
             self.update_status(task_id, manager.PREPARING)
 
@@ -131,6 +134,12 @@ class BuildPackage(Task):
 
     def check_spec_status(self, spec_id):
         res = manager.get_spec_status(spec_id)
+        if res['code'] < 0:
+            raise TaskCancelled()
+        return True
+
+    def claim(self, task_id):
+        res = manager.claim_task(task_id)
         if res['code'] < 0:
             raise TaskCancelled()
         return True
