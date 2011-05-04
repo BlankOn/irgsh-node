@@ -74,7 +74,8 @@ class BuildPackage(Task):
 
         # Create and prepare builder (pbuilder)
         pbuilder_path = settings.PBUILDER_PATH
-        builder = Pbuilder(distribution, pbuilder_path)
+        keyring = os.path.abspath(settings.KEYRING)
+        builder = Pbuilder(distribution, pbuilder_path, keyring=keyring)
 
         # Build package
         clog.info('Building package %s for %s' % (specification.source,
