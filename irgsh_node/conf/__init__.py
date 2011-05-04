@@ -24,7 +24,8 @@ CONFIG_MAPPING = {
         'ssl-key': 'SSL_KEY',
         'arch': 'ARCHITECTURE',
         'workers': 'CELERYD_CONCURRENCY',
-        'db': 'LOCAL_DATABASE'
+        'db': 'LOCAL_DATABASE',
+        'keyring': 'KEYRING',
     },
     'queue': {
         'host': 'BROKER_HOST',
@@ -42,7 +43,7 @@ CONFIG_MAPPING = {
     }
 }
 CONFIG_REQUIRED = {
-    'irgsh': ['node-name', 'build-path', 'server', 'arch'],
+    'irgsh': ['node-name', 'build-path', 'server', 'arch', 'keyring'],
     'queue': ['host', 'vhost'],
     'pbuilder': ['path'],
     'upload': ['user', 'host', 'path'],
