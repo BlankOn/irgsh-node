@@ -19,5 +19,5 @@ setup(name='irgsh-node',
       entry_points={'console_scripts': ['irgsh-node = irgsh_node.main:main',
                                         'irgsh-uploader = irgsh_node.uploader:main']},
       install_requires=['setuptools', 'python-debian', 'celery>=2.2',
-                        'sqlalchemy', 'poster'],
+                        'sqlalchemy', 'poster', 'simplejson'],
      )

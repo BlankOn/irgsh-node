@@ -1,5 +1,8 @@
 import urllib2
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from .conf import settings
 from .utils import send_message
