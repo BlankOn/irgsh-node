@@ -8,3 +8,5 @@ LOCAL_DATABASE = 'sqlite:///irgsh-node.db'
 SSL_CERT = None
 SSL_KEY = None
 
+PBUILDER_DEBOOTSTRAP = None
+

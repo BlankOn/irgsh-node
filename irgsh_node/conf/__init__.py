@@ -35,7 +35,8 @@ CONFIG_MAPPING = {
         'vhost': 'BROKER_VHOST'
     },
     'pbuilder': {
-        'path': 'PBUILDER_PATH'
+        'path': 'PBUILDER_PATH',
+        'debootstrap': 'PBUILDER_DEBOOTSTRAP'
     },
     'upload': {
         'host': 'UPLOAD_HOST',
