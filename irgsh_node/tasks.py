@@ -75,10 +75,14 @@ class BuildPackage(Task):
         # Create and prepare builder (pbuilder)
         pbuilder_path = settings.PBUILDER_PATH
         pbuilder_debootstrap = settings.PBUILDER_DEBOOTSTRAP
+        pbuilder_mirror = settings.PBUILDER_MIRROR
+        pbuilder_arch = settings.PBUILDER_ARCH
 
         keyring = os.path.abspath(settings.KEYRING)
         builder = Pbuilder(distribution, pbuilder_path, keyring=keyring,
-                           debootstrap=pbuilder_debootstrap)
+                           debootstrap=pbuilder_debootstrap,
+                           mirror=pbuilder_mirror,
+                           arch=pbuilder_arch)
 
         # Build package
         clog.info('Building package %s for %s' % (specification.source,

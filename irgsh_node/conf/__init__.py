@@ -36,7 +36,9 @@ CONFIG_MAPPING = {
     },
     'pbuilder': {
         'path': 'PBUILDER_PATH',
-        'debootstrap': 'PBUILDER_DEBOOTSTRAP'
+        'debootstrap': 'PBUILDER_DEBOOTSTRAP',
+        'mirror': 'PBUILDER_MIRROR',
+        'arch': 'PBUILDER_ARCH'
     },
     'upload': {
         'host': 'UPLOAD_HOST',
