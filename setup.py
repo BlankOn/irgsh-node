@@ -18,6 +18,6 @@ setup(name='irgsh-node',
       maintainer_email='blankon-dev@googlegroups.com',
       entry_points={'console_scripts': ['irgsh-node = irgsh_node.main:main',
                                         'irgsh-uploader = irgsh_node.uploader:main']},
-      install_requires=['setuptools', 'python-debian', 'celery>=2.2',
+      install_requires=['setuptools', 'python-debian', 'celery==2.3.3',
                         'sqlalchemy', 'poster', 'simplejson'],
      )
