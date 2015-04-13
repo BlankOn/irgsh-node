@@ -21,7 +21,7 @@ Kebutuhan Administrasi
 Kebutuhan Aplikasi
 ------------------
 
-    $ sudo apt-get install python dput pbuilder git-core
+    $ sudo apt-get install python dput pbuilder git-core python-lzma python-chardet
 
 Instalasi
 ---------
