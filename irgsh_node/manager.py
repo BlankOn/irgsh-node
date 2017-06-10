@@ -68,8 +68,9 @@ def claim_task(task_id):
 def get_spec_status(spec_id):
     host = settings.SERVER.rstrip('/')
     url = URL_GET_STATUS % {'host': host, 'spec_id': spec_id}
-
-    return json.loads(send_message(url))
+    result = send_message(url)
+    print result
+    return json.loads(result)
 
 def ping():
     host = settings.SERVER.rstrip('/')

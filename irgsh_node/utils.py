@@ -50,5 +50,8 @@ def send_message(url, param=None):
 
     # Create request
     request = urllib2.Request(url, data, headers)
-    return opener.open(request).read()
+    try:
+       return opener.open(request).read()
+    except urllib2.HTTPError, e:
+       print e
 
