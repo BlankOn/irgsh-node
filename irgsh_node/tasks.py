@@ -85,6 +85,7 @@ class BuildPackage(Task):
                            arch=pbuilder_arch)
 
         # Build package
+        specification.source = specification.source.replace('irgsh.blankonlinux.or.id', settings.WEBHOST)
         clog.info('Building package %s for %s' % (specification.source,
                                                   distribution.name))
 

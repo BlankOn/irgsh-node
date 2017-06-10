@@ -26,6 +26,7 @@ CONFIG_MAPPING = {
         'workers': 'CELERYD_CONCURRENCY',
         'db': 'LOCAL_DATABASE',
         'keyring': 'KEYRING',
+        'webhost': 'WEBHOST',
     },
     'queue': {
         'host': 'BROKER_HOST',
